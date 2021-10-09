@@ -62,7 +62,7 @@ exports.handler = async function(event, context) {
 
 const initialize = () => {
 
-    console.log('initialize in');
+    console.log('Edge gateway initialize in');
 
     const app = express();
 
@@ -71,7 +71,7 @@ const initialize = () => {
     routerHandler(app);
 
 
-    app.listen(CORE_PORT, () => console.log(`Example app listening on port ${CORE_PORT}!`));
+    app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
 
 
     setInterval(async () => {
@@ -85,7 +85,7 @@ const initialize = () => {
 
     
 
-    console.log('initialize out');
+    console.log('Edge gateway initialize out');
 
 };
 
