@@ -715,8 +715,8 @@ const checkDynamoDB = async () => {
     ddbDocClient.send(scannerCmd),
     ddbDocClient.send(recordCmd)
   ]).catch(err => {
-    console.log('storage-api.checkDynamoDB err:', JSON.stringify(err));
-    throw new Error('checkDynamoDB failed!!!!');
+    console.error(`storage-api.checkDynamoDB err: ${err.message}`);
+    throw new Error('storage-api.checkDynamoDB failure!!!!');
   });
 
   console.log('storage-api.checkDynamoDB out');
