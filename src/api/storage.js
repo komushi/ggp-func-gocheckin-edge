@@ -24,7 +24,7 @@ const unmarshallOptions = {
 
 const translateConfig = { marshallOptions, unmarshallOptions };
 
-const { DynamoDBClient, DeleteTableCommand, CreateTableCommand, DescribeTableCommand } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBClient, DeleteTableCommand, CreateTableCommand, DescribeTableCommand, ListTablesCommand } = require("@aws-sdk/client-dynamodb");
 
 const client = new DynamoDBClient(config);
 
@@ -280,6 +280,8 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
 
   console.log('storage-api.getScanners in:' + JSON.stringify({listingId, roomCode}));
 
+  await checkDynamoDB();
+
   let param;
 
   if (listingId) {
@@ -523,6 +525,8 @@ module.exports.initializeDatabase = async () => {
 
   console.log('storage-api.initializeDatabase in:');
 
+  await checkDynamoDB();
+
   const hostDeleteCmd = new DeleteTableCommand({
     TableName: TBL_HOST
   });
@@ -667,4 +671,55 @@ module.exports.initializeDatabase = async () => {
 
   return;
 
+};
+
+const checkDynamoDB = async () => {
+
+  console.log('storage-api.checkDynamoDB in');
+
+  const hostCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_HOST,
+    Limit: 1
+  });
+
+  const listingCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_LISTING,
+    Limit: 1
+  });
+
+  const reservationCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_RESERVATION,
+    Limit: 1
+  });
+
+  const memberCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_MEMBER,
+    Limit: 1
+  });
+
+  const scannerCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_SCANNER,
+    Limit: 1
+  });
+
+  const recordCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_RECORD,
+    Limit: 1
+  });
+
+  const results = await Promise.all([
+    ddbDocClient.send(hostCmd),
+    ddbDocClient.send(listingCmd),
+    ddbDocClient.send(reservationCmd),
+    ddbDocClient.send(memberCmd),
+    ddbDocClient.send(scannerCmd),
+    ddbDocClient.send(recordCmd)
+  ]).catch(err => {
+    console.log('storage-api.checkDynamoDB err:', err.message);
+    throw err;
+  });
+
+  console.log('storage-api.checkDynamoDB out');
+
+  return;
 };
