@@ -280,8 +280,6 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
 
   console.log('storage-api.getScanners in:' + JSON.stringify({listingId, roomCode}));
 
-  await checkDynamoDB();
-
   let param;
 
   if (listingId) {
@@ -525,8 +523,6 @@ module.exports.initializeDatabase = async () => {
 
   console.log('storage-api.initializeDatabase in:');
 
-  await checkDynamoDB();
-
   const hostDeleteCmd = new DeleteTableCommand({
     TableName: TBL_HOST
   });
@@ -673,7 +669,7 @@ module.exports.initializeDatabase = async () => {
 
 };
 
-const checkDynamoDB = async () => {
+module.exports.checkDynamoDB = async () => {
 
   console.log('storage-api.checkDynamoDB in');
 

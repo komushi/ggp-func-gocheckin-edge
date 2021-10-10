@@ -19,6 +19,9 @@ exports.handler = async function(event, context) {
     // console.log('context: ' + JSON.stringify(context));
 
     try {
+
+        await storage.checkDynamoDB();
+
         if (context.clientContext.Custom.subject.indexOf('init_db') > -1) {
             
             await storage.initializeDatabase();
@@ -28,28 +31,20 @@ exports.handler = async function(event, context) {
 
             await iotEventHandler.handler(event);
 
-        } else if (context.clientContext.Custom.subject.indexOf('/delete/accepted') > -1
-            && context.clientContext.Custom.subject.indexOf(`$aws/things/${AWS_IOT_THING_NAME}/shadow/name`) > -1) {
-
-            console.log('/shadow/delete/accepted event.state: ' + JSON.stringify(event.state));
-
-
         } else if (context.clientContext.Custom.subject.indexOf('find_user') > -1 ) {
-
             console.log('find_user event: ' + JSON.stringify(event));
-
 
             await scanner.findUsers(event);
 
         }
 
     } catch (err) {
-        console.error('!!!!!!error happened at handler error start!!!!!!');
+        console.error('!!!!!!error happened at handler start!!!!!!');
         console.error(err.name);
         console.error(err.message);
         console.error(err.stack);
         console.trace();
-        console.error('!!!!!!error happened at handler error end!!!!!!');
+        console.error('!!!!!!error happened at handler end!!!!!!');
     }
 
     const promise = new Promise(function(resolve, reject) {
@@ -70,20 +65,26 @@ const initialize = () => {
     app.use(express.urlencoded({limit: '50mb', extended: true}));
     routerHandler(app);
 
-
     app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
 
-
     setInterval(async () => {
-        await iotEventHandler.handler();
+        try {
+            await storage.checkDynamoDB();
+            
+            await iotEventHandler.handler();
 
-        if (!process.env.HOST_ID) {
-            process.env.HOST_ID = await storage.getHostId();    
-        }
+            if (!process.env.HOST_ID) {
+                process.env.HOST_ID = await storage.getHostId();    
+            }
+        } catch (err) {
+            console.error('!!!!!!error happened at initialize method start!!!!!!');
+            console.error(err.name);
+            console.error(err.message);
+            console.error(err.stack);
+            console.trace();
+            console.error('!!!!!!error happened at initialize method end!!!!!!');
+        } 
     }, 300000);
-
-
-    
 
     console.log('Edge gateway initialize out');
 
