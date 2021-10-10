@@ -716,7 +716,7 @@ const checkDynamoDB = async () => {
     ddbDocClient.send(recordCmd)
   ]).catch(err => {
     console.error(`storage-api.checkDynamoDB err: ${err.message}`);
-    throw new Error('storage-api.checkDynamoDB failure!!!!');
+    throw new Error('The local database of the IoT Edge Gateway is unavailable or not setup correctly');
   });
 
   console.log('storage-api.checkDynamoDB out');
