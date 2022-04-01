@@ -29,6 +29,8 @@ module.exports.getShadow = async (params) => {
 
 	const client = new IoTDataPlaneClient({});
 
+	console.log('iot-api.getShadow client.config:' + JSON.stringify(client.config));
+
 	const command = new GetThingShadowCommand(params);
 
 	const objResult = await client.send(command);
