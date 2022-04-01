@@ -27,7 +27,10 @@ module.exports.getShadow = async (params) => {
 
 	console.log('iot-api.getShadow in: params:' + JSON.stringify(params));
 
-	const client = new IoTDataPlaneClient({});
+	const client = new IoTDataPlaneClient({
+		region: 'ap-northeast-1',
+		endpoint: 'a1nre26d4z2wkr-ats.iot.ap-northeast-1.amazonaws.com'
+	});
 
 	console.log('iot-api.getShadow client.config:' + JSON.stringify(client.config));
 
