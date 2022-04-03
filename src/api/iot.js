@@ -27,11 +27,15 @@ module.exports.getShadow = async (params) => {
 
 	console.log('iot-api.getShadow in: params:' + JSON.stringify(params));
 
+	console.log('iot-api.getShadow before IoTDataPlaneClient');
+
 	const client = new IoTDataPlaneClient({
 		region: 'ap-northeast-1'
 	});
 
-	console.log('iot-api.getShadow client.config:' + JSON.stringify(client.config));
+	console.log('iot-api.getShadow after IoTDataPlaneClient');
+
+	// console.log('iot-api.getShadow client.config:' + JSON.stringify(client.config));
 
 	const command = new GetThingShadowCommand(params);
 
