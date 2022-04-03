@@ -39,7 +39,11 @@ module.exports.getShadow = async (params) => {
 
 	const command = new GetThingShadowCommand(params);
 
-	const objResult = await client.send(command);
+	// const objResult = await client.send(command);
+
+	const objResult = await client.getThingShadow(params, {
+		region: 'ap-northeast-1'
+	});
 
 	let result = {};
 	if (objResult) {
