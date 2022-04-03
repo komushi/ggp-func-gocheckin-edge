@@ -1,6 +1,6 @@
 const greengrass = require('aws-greengrass-core-sdk');
 const iotData = new greengrass.IotData();
-const { IoTDataPlane, IoTDataPlaneClient, GetThingShadowCommand, UpdateThingShadowCommand, DeleteThingShadowCommand } = require("@aws-sdk/client-iot-data-plane");
+const { IoTDataPlaneClient, GetThingShadowCommand, UpdateThingShadowCommand, DeleteThingShadowCommand } = require("@aws-sdk/client-iot-data-plane");
 
 module.exports.publish = async ({topic, payload}) => {
 
@@ -27,27 +27,11 @@ module.exports.getShadow = async (params) => {
 
 	console.log('iot-api.getShadow in: params:' + JSON.stringify(params));
 
-	console.log('iot-api.getShadow before IoTDataPlaneClient');
-
-	// const client = new IoTDataPlaneClient({
-	// 	region: 'ap-northeast-1'
-	// });
-
-	const client = new IoTDataPlane({
-		region: 'ap-northeast-1'
-	});
-
-	console.log('iot-api.getShadow after IoTDataPlaneClient');
-
-	// console.log('iot-api.getShadow client.config:' + JSON.stringify(client.config));
+	const client = new IoTDataPlaneClient({});
 
 	const command = new GetThingShadowCommand(params);
 
-	// const objResult = await client.send(command);
-
-	const objResult = await client.getThingShadow(params, {
-		region: 'ap-northeast-1'
-	});
+	const objResult = await client.send(command);
 
 	let result = {};
 	if (objResult) {
