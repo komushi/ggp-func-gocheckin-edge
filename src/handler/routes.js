@@ -102,7 +102,7 @@ router.post('/uploadMipsGateRecord', async (req, res) => {
     if (!getMemberResult) {
       res.send({
           "code":0,
-          "message": message
+          "message": 'Member info not found!'
       });
 
       return;
@@ -126,7 +126,7 @@ router.post('/uploadMipsGateRecord', async (req, res) => {
   } else {
     res.send({
         "code":0,
-        "message": 'Not allowed!'
+        "message": `payload.type ${payload.type} Not allowed!`
 
     });
   }
