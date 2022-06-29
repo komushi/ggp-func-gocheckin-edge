@@ -188,6 +188,8 @@ module.exports.addUser = async ({reservation, userParam}) => {
       body: bodyFormData
     });
 
+    console.log('scanner.addUser response:' + JSON.stringify(response));
+
     return JSON.parse(response.body);
 
   }));
