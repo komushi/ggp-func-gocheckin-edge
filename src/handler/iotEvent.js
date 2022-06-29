@@ -86,7 +86,7 @@ exports.handler = async function(event) {
                     lastRequestOn
                 }).catch(err => {
 
-           			console.log('syncReservation err:' + JSON.stringify(err));
+           			console.log('iotEventHandler.syncReservation err:' + JSON.stringify(err));
 
            			return {
            				rejectReason: err.message
@@ -140,7 +140,7 @@ exports.handler = async function(event) {
 
 const removeReservation = async ({reservationCode, listingId, lastRequestOn}) => {
 
-	console.log('removeReservation in: ' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
+	console.log('iotEventHandler.removeReservation in: ' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
 
 	const getShadowResult = await iot.getShadow({
 	    thingName: AWS_IOT_THING_NAME,
@@ -169,7 +169,7 @@ const removeReservation = async ({reservationCode, listingId, lastRequestOn}) =>
 
 	const deleteResults = deleteResponse.flatMap(x => x);
 
-	console.log('iotEventHandler.syncReservation deleteResults: ' + JSON.stringify(deleteResults));
+	console.log('iotEventHandler.removeReservation deleteResults: ' + JSON.stringify(deleteResults));
 
 
     // update local ddb
@@ -190,7 +190,9 @@ const removeReservation = async ({reservationCode, listingId, lastRequestOn}) =>
     	shadowName: reservationCode    	
     });
 
-	console.log('removeReservation deleteResults:' + JSON.stringify(deleteResults));
+	console.log('iotEventHandler.removeReservation deleteResults:' + JSON.stringify(deleteResults));
+
+	console.log('iotEventHandler.removeReservation out:' + JSON.stringify({reservationCode, listingId, lastRequestOn, clearRequest: true}));
 
 	return {reservationCode, listingId, lastRequestOn, clearRequest: true};
 	
@@ -198,7 +200,7 @@ const removeReservation = async ({reservationCode, listingId, lastRequestOn}) =>
 
 const syncReservation = async ({reservationCode, listingId, lastRequestOn}) => {
 
-	console.log('shadowHandler.syncReservation in: ' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
+	console.log('iotEventHandler.syncReservation in: ' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
 
 	const getShadowResult = await iot.getShadow({
 	    thingName: AWS_IOT_THING_NAME,
@@ -306,7 +308,7 @@ const syncReservation = async ({reservationCode, listingId, lastRequestOn}) => {
     	reportedState: reportedState
     });
 
-	console.log('shadowHandler.syncReservation out:' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
+	console.log('iotEventHandler.syncReservation out:' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
 
 	return {reservationCode, listingId, lastRequestOn};
 

@@ -127,10 +127,10 @@ module.exports.deleteUser = async ({listingId, userParam}) => {
   const bodyFormData = new FormData();
   bodyFormData.append('userCode', userCode);
 
-  const results = await Promise.all(scannerAddresses.map(async (scannerAddress) => {
+  const results = await Promise.allSettled(scannerAddresses.map(async (scannerAddress) => {
     
-    // console.log('deleteUser url:' + `http://${scannerAddress}:${SCANNER_PORT}/${USER_DELETE_API}`);
-    // console.log('deleteUser bodyFormData:' + JSON.stringify(bodyFormData));
+    console.log('deleteUser url:' + `http://${scannerAddress}:${SCANNER_PORT}/${USER_DELETE_API}`);
+    console.log('deleteUser bodyFormData:' + JSON.stringify(bodyFormData));
 
     const response = await got.post(`http://${scannerAddress}:${SCANNER_PORT}/${USER_DELETE_API}`, {
       body: bodyFormData
@@ -141,6 +141,8 @@ module.exports.deleteUser = async ({listingId, userParam}) => {
   }));
 
   results.filter(result => {
+    console.log('scanner.deleteUser scanner API:', result);
+    
     if (result.code != 0) {
       return true;
     }
@@ -177,10 +179,10 @@ module.exports.addUser = async ({reservation, userParam}) => {
   bodyFormData.append('beginDate', `${reservation.checkInDate} 14:00`);
   bodyFormData.append('endDate', `${reservation.checkOutDate} 11:00`);
 
-  const results = await Promise.all(scannerAddresses.map(async (scannerAddress) => {
+  const results = await Promise.allSettled(scannerAddresses.map(async (scannerAddress) => {
 
-    // console.log('addUser url:' + `http://${scannerAddress}:${SCANNER_PORT}/${USER_ADD_API}`);
-    // console.log('addUser bodyFormData:' + JSON.stringify(bodyFormData));
+    console.log('scanner.addUser url:' + `http://${scannerAddress}:${SCANNER_PORT}/${USER_ADD_API}`);
+    console.log('scanner.addUser bodyFormData:' + JSON.stringify(bodyFormData));
 
     const response = await got.post(`http://${scannerAddress}:${SCANNER_PORT}/${USER_ADD_API}`, {
       body: bodyFormData
@@ -191,6 +193,7 @@ module.exports.addUser = async ({reservation, userParam}) => {
   }));
 
   results.filter(result => {
+    console.log('scanner.addUser scanner API:', result);
     if (result.code != 0) {
       return true;
     }
