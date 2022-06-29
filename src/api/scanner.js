@@ -191,7 +191,9 @@ module.exports.addUser = async ({reservation, userParam}) => {
       throw err;
     });
 
-    console.log('scanner.addUser response:' + JSON.stringify(response));
+    console.log('scanner.addUser response!!');
+    console.log(response);
+    console.log('scanner.addUser response!!');
 
     return JSON.parse(response.body);
 
@@ -203,6 +205,7 @@ module.exports.addUser = async ({reservation, userParam}) => {
       return true;
     }
   }).map(result => {
+    console.log('scanner.addUser out result:' + JSON.stringify(result));
     throw new Error(`${result.userCode}: ${result.message}`);
   });
 
