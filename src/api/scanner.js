@@ -179,7 +179,7 @@ module.exports.addUser = async ({reservation, userParam}) => {
   bodyFormData.append('beginDate', `${reservation.checkInDate} 14:00`);
   bodyFormData.append('endDate', `${reservation.checkOutDate} 11:00`);
 
-  const results = await Promise.allSettled(scannerAddresses.map(async (scannerAddress) => {
+  const results = await Promise.all(scannerAddresses.map(async (scannerAddress) => {
 
     console.log('scanner.addUser url:' + `http://${scannerAddress}:${SCANNER_PORT}/${USER_ADD_API}`);
     console.log('scanner.addUser bodyFormData:' + JSON.stringify(bodyFormData));
