@@ -186,6 +186,9 @@ module.exports.addUser = async ({reservation, userParam}) => {
 
     const response = await got.post(`http://${scannerAddress}:${SCANNER_PORT}/${USER_ADD_API}`, {
       body: bodyFormData
+    }).catch(err => {
+      console.log('scanner.addUser err:' + err);
+      throw err;
     });
 
     console.log('scanner.addUser response:' + JSON.stringify(response));
