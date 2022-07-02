@@ -10,8 +10,8 @@ const FormData = require('form-data');
 
 const storage = require('../api/storage');
 
-module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
-  console.log('findUsers in: ' + JSON.stringify({listingId, userName, userCode, group}));
+module.exports.getScanners = async ({listingId}) => {
+  console.log('scanner.getScanners in: ' + JSON.stringify({listingId}));
 
   let scannerAddresses = [];
 
@@ -23,7 +23,25 @@ module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
     scannerAddresses = await storage.getScanners({});
   }
 
-  console.log('findUsers scannerAddresses:' + JSON.stringify(scannerAddresses));
+  console.log('scanner.getScanners out: results:' + JSON.stringify(scannerAddresses));
+
+  return scannerAddresses;
+};
+
+module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
+  console.log('scanner.findUsers in: ' + JSON.stringify({listingId, userName, userCode, group}));
+
+  let scannerAddresses = [];
+
+  if (listingId) {
+    scannerAddresses = await storage.getScanners({
+      listingId: listingId
+    });    
+  } else {
+    scannerAddresses = await storage.getScanners({});
+  }
+
+  console.log('scanner.findUsers scannerAddresses:' + JSON.stringify(scannerAddresses));
 
   if (scannerAddresses.length == 0) {
     throw new Error('No Scanner Addresses found!!');
