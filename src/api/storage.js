@@ -270,8 +270,7 @@ const getDelScannerParams = (records) => {
     }
   });
 
-  // console.log('storage-api.getDelScannerParams out: params:' + JSON.stringify(params));
-  console.log('storage-api.getDelScannerParams out');
+  console.log('storage-api.getDelScannerParams out: params:' + JSON.stringify(params));
 
   return params;
 };
