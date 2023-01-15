@@ -48,6 +48,7 @@ module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
   // }
 
   if (scannerAddresses.length == 0) {
+    console.log('scanner.findUsers out: results: []');
     return [];
   }
 
@@ -59,7 +60,7 @@ module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
   } else if (group) {
     bodyFormData.append('name', group);  
   } else {
-    throw new Error('Need userName, userCode or group to find a user');
+    throw new Error('scanner.findUsers - Need userName, userCode or group to find a user');
   }
   
   const results = await Promise.all(scannerAddresses.map(async (scannerAddress) => {
@@ -103,7 +104,7 @@ module.exports.deleteUsers = async ({scannerAddress, deleteUsersParam}) => {
     return member.userCode + '#_';
   }).join('');
 
-  console.log('deleteUsers userCodes:' + userCodes);
+  console.log('scanner.deleteUsers userCodes:' + userCodes);
 
   const bodyFormData = new FormData();
   bodyFormData.append('userCode', userCodes);
