@@ -43,8 +43,12 @@ module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
 
   console.log('scanner.findUsers scannerAddresses:' + JSON.stringify(scannerAddresses));
 
+  // if (scannerAddresses.length == 0) {
+  //   throw new Error('No Scanner Addresses found!!');
+  // }
+
   if (scannerAddresses.length == 0) {
-    throw new Error('No Scanner Addresses found!!');
+    return [];
   }
 
   const bodyFormData = new FormData();
