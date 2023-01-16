@@ -142,16 +142,26 @@ const removeReservation = async ({reservationCode, listingId, lastRequestOn}) =>
 
 	console.log('iotEventHandler.removeReservation in: ' + JSON.stringify({reservationCode, listingId, lastRequestOn}));
 
+	// const getShadowResult = await iot.getShadow({
+	//     thingName: AWS_IOT_THING_NAME,
+	//     shadowName: reservationCode
+	// });
+
 	const getShadowResult = await iot.getShadow({
 	    thingName: AWS_IOT_THING_NAME,
 	    shadowName: reservationCode
+	}).catch(err => {
+		console.log('removeReservation getShadow err:' + JSON.stringify(err));
+		return;
 	});
 
-	if (!getShadowResult.state.desired ||
-		!getShadowResult.state.desired.lastRequestOn ||
-		getShadowResult.state.desired.lastRequestOn != lastRequestOn) {
+	if (getShadowResult) {
+		if (!getShadowResult.state.desired ||
+			!getShadowResult.state.desired.lastRequestOn ||
+			getShadowResult.state.desired.lastRequestOn != lastRequestOn) {
 
-		throw new Error('Request of RemoveReservation datetime validation error!');
+			throw new Error('Request of RemoveReservation datetime validation error!');
+		}
 	}
 	
 	const userResults = await scanner.findUsers({
