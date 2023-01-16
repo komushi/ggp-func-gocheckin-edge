@@ -195,10 +195,18 @@ const removeReservation = async ({reservationCode, listingId, lastRequestOn}) =>
     }
 
     // delete named shadow
+    // await iot.deleteShadow({
+    // 	thingName: AWS_IOT_THING_NAME,
+    // 	shadowName: reservationCode    	
+    // });
+
     await iot.deleteShadow({
     	thingName: AWS_IOT_THING_NAME,
     	shadowName: reservationCode    	
-    });
+    }).catch(err => {
+		console.log('removeReservation deleteShadow err:' + JSON.stringify(err));
+		return;
+	});
 
 	console.log('iotEventHandler.removeReservation deleteResults:' + JSON.stringify(deleteResults));
 
