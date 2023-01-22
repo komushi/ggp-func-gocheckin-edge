@@ -63,13 +63,13 @@ exports.handler = async function(event) {
                 });
 
 		        await iot.publish({
-		            topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
+		            topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/reservation_reset`,
 		            payload: JSON.stringify({
 		                listingId: listingId,
 		                reservationCode: reservationCode,
 		                lastResponse: lastRequestOn,
 		                rejectReason: syncResult.rejectReason,
-		                clearRequest: (syncResult.rejectReason ? false : true)
+		                clearRequest: (syncResult.rejectReason ? false : syncResult.clearRequest)
 		            })
 		        });
 
