@@ -39,6 +39,7 @@ router.post('/deviceReg', async (req, res) => {
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
           params.push({
+            hostId: process.env.HOST_ID,
             uuid: uid.randomUUID(6),
             listingId: listingId,
             terminalKey: req.body.terminalKey,
@@ -52,6 +53,7 @@ router.post('/deviceReg', async (req, res) => {
         })
       } else {
         params.push({
+          hostId: process.env.HOST_ID,
           uuid: uid.randomUUID(6),
           listingId: listingId,
           terminalKey: req.body.terminalKey,
