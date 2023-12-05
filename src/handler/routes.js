@@ -23,7 +23,49 @@ router.post('/deviceReg', async (req, res) => {
   };
 
   let params = [];
+  if (listingIds.length <= 0) {
+    response = {
+      'code': 1,
+      'message': 'Please set listingId to <listingId1> or <listingId1>,<listingId2>!!'
+    };
+    
+    return res.send(response);
 
+  } else {
+    listingIds.forEach(listingId => {
+
+      const roomCodes = JSON.parse(req.body.roomCode)[listingId];
+
+      if (roomCodes && roomCodes.length > 0) {
+        roomCodes.forEach(roomCode => {
+          params.push({
+            uuid: uid.randomUUID(6),
+            listingId: listingId,
+            terminalKey: req.body.terminalKey,
+            terminalName: req.body.terminalName,
+            coreName: process.env.AWS_IOT_THING_NAME,
+            localIp: req.body.localIp,
+            latitude: req.body.latitude,
+            longitude: req.body.longitude
+            roomCode: roomCode
+          });
+        })
+      } else {
+        params.push({
+          uuid: uid.randomUUID(6),
+          listingId: listingId,
+          terminalKey: req.body.terminalKey,
+          terminalName: req.body.terminalName,
+          coreName: process.env.AWS_IOT_THING_NAME,
+          localIp: req.body.localIp,
+          latitude: req.body.latitude,
+          longitude: req.body.longitude
+        });        
+      }
+    });
+  }
+
+/*
   if (listingIds.length == 0) {
     response = {
       'code': 1,
@@ -73,6 +115,7 @@ router.post('/deviceReg', async (req, res) => {
       });
     }
   }
+*/
 
   const scannerResults = await storage.updateScanners(params);
 
