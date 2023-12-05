@@ -46,7 +46,7 @@ router.post('/deviceReg', async (req, res) => {
             coreName: process.env.AWS_IOT_THING_NAME,
             localIp: req.body.localIp,
             latitude: req.body.latitude,
-            longitude: req.body.longitude
+            longitude: req.body.longitude,
             roomCode: roomCode
           });
         })
