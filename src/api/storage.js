@@ -635,6 +635,10 @@ module.exports.initializeDatabase = async () => {
         ],
         Projection: {
           ProjectionType: 'ALL'
+        },
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 5,
+          WriteCapacityUnits: 5
         }
       },
       {
@@ -645,6 +649,10 @@ module.exports.initializeDatabase = async () => {
         ],
         Projection: {
           ProjectionType: 'ALL'
+        },
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 5,
+          WriteCapacityUnits: 5
         }
       },
       {
@@ -655,6 +663,10 @@ module.exports.initializeDatabase = async () => {
         ],
         Projection: {
           ProjectionType: 'ALL'
+        },
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 5,
+          WriteCapacityUnits: 5
         }
       }
     ]
