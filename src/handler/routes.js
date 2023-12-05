@@ -3,7 +3,10 @@ const storage = require('../api/storage');
 
 const Router = require('express-promise-router');
 
+const ShortUniqueId = require('short-unique-id');
+
 const router = new Router();
+const uid = new ShortUniqueId();
 
 // export our router to be mounted by the parent application
 module.exports = router;
@@ -58,6 +61,7 @@ router.post('/deviceReg', async (req, res) => {
 
       listingIds.forEach(listingId => {
         params.push({
+          uuid: uid.randomUUID(6),
           listingId: listingId,
           terminalKey: req.body.terminalKey,
           terminalName: req.body.terminalName,
