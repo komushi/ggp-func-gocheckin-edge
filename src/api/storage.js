@@ -1,6 +1,9 @@
 const TBL_RESERVATION = process.env.TBL_RESERVATION;
 const TBL_MEMBER = process.env.TBL_MEMBER;
 const TBL_SCANNER = process.env.TBL_SCANNER;
+const IDX_LISTINGID_ROOMCODE = process.env.IDX_LISTINGID_ROOMCODE;
+const IDX_LISTINGID_TERMINALKEY = process.env.IDX_LISTINGID_TERMINALKEY;
+const IDX_TERMINALKEY = process.env.IDX_TERMINALKEY;
 const TBL_RECORD = process.env.TBL_RECORD;
 const TBL_LISTING = process.env.TBL_LISTING;
 const TBL_HOST = process.env.TBL_HOST;
@@ -264,8 +267,7 @@ const getDelScannerParams = (records) => {
     return {
       TableName: TBL_SCANNER,
       Key: {
-        listingId: record.listingId,
-        terminalKey: record.terminalKey
+        uuid: record.uuid
       }
     }
   });
@@ -284,7 +286,8 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
   if (listingId) {
     if (roomCode) {
       param = {
-        TableName : TBL_SCANNER,
+        TableName: TBL_SCANNER,
+        IndexName: IDX_LISTINGID_ROOMCODE,
         KeyConditionExpression: 'listingId = :listingId',
         FilterExpression: 'roomCode = :roomCode',
         ExpressionAttributeValues: {
@@ -294,7 +297,8 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
       };
     } else {
       param = {
-        TableName : TBL_SCANNER,
+        TableName: TBL_SCANNER,
+        IndexName: IDX_LISTINGID_TERMINALKEY,
         KeyConditionExpression: 'listingId = :listingId',
         FilterExpression: 'attribute_not_exists(roomCode)',
         ExpressionAttributeValues: {
@@ -616,7 +620,8 @@ module.exports.initializeDatabase = async () => {
     ],
     AttributeDefinitions: [
       { AttributeName: 'listingId', AttributeType: 'S' },
-      { AttributeName: 'terminalKey', AttributeType: 'S' }
+      { AttributeName: 'terminalKey', AttributeType: 'S' },
+      { AttributeName: 'roomCode', AttributeType: 'S' }
     ],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
@@ -624,7 +629,7 @@ module.exports.initializeDatabase = async () => {
     },
     GlobalSecondaryIndexes: [
       {
-        IndexName: idx_terminalKey,
+        IndexName: IDX_TERMINALKEY,
         KeySchema: [
           { AttributeName: 'terminalKey', KeyType: 'HASH'}
         ],
@@ -633,7 +638,7 @@ module.exports.initializeDatabase = async () => {
         }
       },
       {
-        IndexName: idx_listingId_terminalKey,
+        IndexName: IDX_LISTINGID_TERMINALKEY,
         KeySchema: [
           { AttributeName: 'listingId', KeyType: 'HASH'},
           { AttributeName: 'terminalKey', KeyType: 'RANGE'}
@@ -643,7 +648,7 @@ module.exports.initializeDatabase = async () => {
         }
       },
       {
-        IndexName: idx_listingId_roomCode,
+        IndexName: IDX_LISTINGID_ROOMCODE,
         KeySchema: [
           { AttributeName: 'listingId', KeyType: 'HASH'},
           { AttributeName: 'roomCode', KeyType: 'RANGE'}
