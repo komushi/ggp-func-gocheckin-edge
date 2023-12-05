@@ -621,7 +621,38 @@ module.exports.initializeDatabase = async () => {
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5
-    }
+    },
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: idx_terminalKey,
+        KeySchema: [
+          { AttributeName: 'terminalKey', KeyType: 'HASH'}
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      },
+      {
+        IndexName: idx_listingId_terminalKey,
+        KeySchema: [
+          { AttributeName: 'listingId', KeyType: 'HASH'},
+          { AttributeName: 'terminalKey', KeyType: 'RANGE'}
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      },
+      {
+        IndexName: idx_listingId_roomCode,
+        KeySchema: [
+          { AttributeName: 'listingId', KeyType: 'HASH'},
+          { AttributeName: 'roomCode', KeyType: 'RANGE'}
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        }
+      }
+    ]
   });
 
   const recordCmd = new CreateTableCommand({
