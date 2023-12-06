@@ -34,7 +34,10 @@ router.post('/deviceReg', async (req, res) => {
   } else {
     listingIds.forEach(listingId => {
 
-      const roomCodes = JSON.parse(req.body.roomCode)[listingId];
+      let roomCodes;
+      if (req.body.roomCode) {
+        roomCodes = JSON.parse(req.body.roomCode)[listingId];
+      }
 
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
