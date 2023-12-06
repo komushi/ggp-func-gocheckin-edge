@@ -3,10 +3,7 @@ const storage = require('../api/storage');
 
 const Router = require('express-promise-router');
 
-const ShortUniqueId = require('short-unique-id');
-
 const router = new Router();
-const uid = new ShortUniqueId();
 
 // export our router to be mounted by the parent application
 module.exports = router;
@@ -42,8 +39,6 @@ router.post('/deviceReg', async (req, res) => {
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
           params.push({
-            hostId: process.env.HOST_ID,
-            uuid: uid.randomUUID(6),
             listingId: listingId,
             terminalKey: req.body.terminalKey,
             terminalName: req.body.terminalName,
@@ -56,8 +51,6 @@ router.post('/deviceReg', async (req, res) => {
         })
       } else {
         params.push({
-          hostId: process.env.HOST_ID,
-          uuid: uid.randomUUID(6),
           listingId: listingId,
           terminalKey: req.body.terminalKey,
           terminalName: req.body.terminalName,
@@ -70,59 +63,7 @@ router.post('/deviceReg', async (req, res) => {
     });
   }
 
-/*
-  if (listingIds.length == 0) {
-    response = {
-      'code': 1,
-      'message': 'Please set listingId to <listingId1> or <listingId1>,<listingId2>!!'
-    };
-    
-    return res.send(response);
-
-  } else if (listingIds.length == 1) {
-
-    res.send(response);
-
-    params.push({
-      listingId: req.body.listingId,
-      terminalKey: req.body.terminalKey,
-      terminalName: req.body.terminalName,
-      coreName: process.env.AWS_IOT_THING_NAME,
-      localIp: req.body.localIp,
-      latitude: req.body.latitude,
-      longitude: req.body.longitude,
-      roomCode: req.body.roomCode
-    });
-
-  } else if (listingIds.length > 1) {
-
-    if (req.body.roomCode) {
-      response = {
-        'code': 1,
-        'message': 'Cannot set roomCode with multiple listings!!'
-      };
-
-      return res.send(response);
-    } else {
-      res.send(response);
-
-      listingIds.forEach(listingId => {
-        params.push({
-          uuid: uid.randomUUID(6),
-          listingId: listingId,
-          terminalKey: req.body.terminalKey,
-          terminalName: req.body.terminalName,
-          coreName: process.env.AWS_IOT_THING_NAME,
-          localIp: req.body.localIp,
-          latitude: req.body.latitude,
-          longitude: req.body.longitude
-        });
-      });
-    }
-  }
-*/
-
-  const scannerResults = await storage.updateScanners(params);
+  const scannerResults = await storage.updateScanners(params, req.body.terminalKey);
 
   const publishResults = await iot.publish({
     topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/scanner_detected`,
@@ -134,6 +75,7 @@ router.post('/deviceReg', async (req, res) => {
 
   console.log('routes.deviceReg out: publishResults:' + JSON.stringify(publishResults));
 
+  return res.send(response);
 });
 
 router.post('/uploadMipsGateRecord', async (req, res) => {

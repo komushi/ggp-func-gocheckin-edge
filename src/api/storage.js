@@ -35,6 +35,10 @@ const { DynamoDBDocumentClient, QueryCommand, TransactWriteCommand, DeleteComman
 
 const ddbDocClient = DynamoDBDocumentClient.from(client, translateConfig);
 
+const ShortUniqueId = require('short-unique-id');
+
+const uid = new ShortUniqueId();
+
 module.exports.saveReservation = async ({reservation, members}) => {
 
   try {
@@ -213,26 +217,80 @@ module.exports.getReservation = async ({reservationCode, listingId}) => {
 
 };
 
-module.exports.updateScanners = async (params) => {
+const getScannerRecord = async (param) => {
 
-    console.log('storage-api.updateScanners in: params:' + JSON.stringify(params));
+  console.log(`storage-api getScannerRecord in: ${JSON.stringify(param)}`);
 
+  const data = await ddbDocClient.send(
+    new QueryCommand({
+      TableName: TBL_SCANNER,
+      IndexName: IDX_LISTINGID_TERMINALKEY,
+      KeyConditionExpression: '#hkey = :hkey AND #rkey = :rkey',
+      ExpressionAttributeNames : {
+          '#hkey' : 'listingId',
+          '#rkey' : 'terminalKey'
+      },
+      ExpressionAttributeValues: {
+        ':hkey': param.listingId,
+        ':rkey': param.terminalKey
+      }
 
-    const delParams = getDelScannerParams(params);
+    })
+  ).catch(error => {
+    console.log('storage-api getScannerRecord error', JSON.stringify(error));
+    throw error;
+  });
 
-    await Promise.all(delParams.map(async (param) => {
-      const command = new DeleteCommand(param);
-      return await ddbDocClient.send(command); 
+  if (data.Items.length == 0) {
+    param.uuid = uid.randomUUID(6);
+  } else {
+    const index = data.Items.findIndex(item => {
+      if (param.roomCode) {
+        if (item.roomCode) {
+          if (item.roomCode == param.roomCode) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      } else {
+        if (item.roomCode) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    });
 
-    }));
+    if (index > -1) {
+      param.uuid = data.Items[index].uuid;  
+
+    } else {
+      param.uuid = uid.randomUUID(6);
+    }
+    
+  }
+
+  console.log(`storage-api getScannerRecord out: ${JSON.stringify(param)}`);
+
+  return param;
+};
+
+module.exports.updateScanners = async (params, terminalKey) => {
+
+    console.log('storage-api.updateScanners in: params:' + JSON.stringify({params, terminalKey}));
 
     const crtTimestamp = (new Date).toISOString();
 
-    const rtnParams = params.map((param) => {
-      param.lastUpdateOn = crtTimestamp;
-      param.hostId = process.env.HOST_ID;
-      return param;
-    });
+    const rtnParams = await Promise.all(params.map(async (param) => {
+      const rtn = await getScannerRecord(param);
+      rtn.lastUpdateOn = crtTimestamp;
+      rtn.hostId = process.env.HOST_ID;
+
+      return rtn;
+    }));
 
     const txnParams = rtnParams.map((param) => {
       return {
@@ -242,6 +300,14 @@ module.exports.updateScanners = async (params) => {
         }
       }
     });
+
+    const delParams = await getDelScannerParams(terminalKey);
+
+    await Promise.all(delParams.map(async (param) => {
+      const command = new DeleteCommand(param);
+      return await ddbDocClient.send(command); 
+
+    }));
 
     const txnCommand = new TransactWriteCommand({
       TransactItems: txnParams
@@ -255,19 +321,28 @@ module.exports.updateScanners = async (params) => {
 
 };
 
-const getDelScannerParams = (records) => {
+const getDelScannerParams = async (terminalKey) => {
 
-  console.log('storage-api.getDelScannerParams in: records:' + JSON.stringify(records));
+  console.log('storage-api.getDelScannerParams in: terminalKey:' + terminalKey);
 
-  if (!records) {
-    return [];
-  }
+  const param = {
+    TableName: TBL_SCANNER,
+    IndexName: IDX_TERMINALKEY,
+    KeyConditionExpression: 'terminalKey = :terminalKey',
+    ExpressionAttributeValues: {
+      ':terminalKey': terminalKey
+    }    
+  };
 
-  const params = records.map(record => {
+  const command = new QueryCommand(param);
+
+  const data = await ddbDocClient.send(command);
+
+  const params = data.Items.map(item => {
     return {
       TableName: TBL_SCANNER,
       Key: {
-        uuid: record.uuid
+        uuid: item.uuid
       }
     }
   });
@@ -288,22 +363,27 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
       param = {
         TableName: TBL_SCANNER,
         IndexName: IDX_LISTINGID_ROOMCODE,
-        KeyConditionExpression: 'listingId = :listingId',
-        FilterExpression: 'roomCode = :roomCode',
+        KeyConditionExpression: '#hkey = :hkey AND #rkey = :rkey',
+        ExpressionAttributeNames : {
+            '#hkey' : 'listingId',
+            '#rkey' : 'roomCode'
+        },
         ExpressionAttributeValues: {
-          ':listingId': listingId,
-          ':roomCode': roomCode
+          ':hkey': listingId,
+          ':rkey': roomCode
         }    
       };
     } else {
       param = {
         TableName: TBL_SCANNER,
         IndexName: IDX_LISTINGID_TERMINALKEY,
-        KeyConditionExpression: 'listingId = :listingId',
-        FilterExpression: 'attribute_not_exists(roomCode)',
+        KeyConditionExpression: '#hkey = :hkey',
+        ExpressionAttributeNames : {
+            '#hkey' : 'listingId'
+        },
         ExpressionAttributeValues: {
-          ':listingId': listingId
-        }    
+          ':hkey': listingId
+        }     
       };
     }
   } else {
@@ -326,9 +406,14 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
   }
   
 
+
   console.log('storage-api.getScanners result:' + JSON.stringify(result));
 
-  return result.Items.map(item => item.localIp);
+  const localIps = result.Items.map(item => item.localIp);
+
+  console.log('storage-api.getScanners localIps:' + JSON.stringify(localIps));
+
+  return [...new Set(localIps)];
 
 };
 
