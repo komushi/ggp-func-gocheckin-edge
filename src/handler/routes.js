@@ -12,12 +12,18 @@ module.exports = router;
 router.post('/deviceReg', async (req, res) => {
 
   console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.ip));
-  console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.connection.remoteAddress));
-  console.log('routes.deviceReg in: x-forwarded-for:' + JSON.stringify(req.headers['x-forwarded-for']));
   console.log('routes.deviceReg in: req.body:' + JSON.stringify(req.body));
 
-  const scannerConfig = await scanner.getConfig(req.ip);
-  // const companyName = scannerConfig.companyName;
+  let localIp = req.ip;
+
+  if (localIp.substr(0, 7) == "::ffff:") {
+    localIp = localIp.substr(7);
+  };
+
+  const scannerConfig = await scanner.getConfig(localIp);
+  const companyName = scannerConfig.companyName;
+
+  console.log('routes.deviceReg companyName:' + companyName);
 
   const listingIds = req.body.listingId.split(',');
 
