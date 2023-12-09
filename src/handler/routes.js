@@ -12,10 +12,12 @@ module.exports = router;
 router.post('/deviceReg', async (req, res) => {
 
   console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.ip));
+  console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.connection.remoteAddress));
+  console.log('routes.deviceReg in: x-forwarded-for:' + JSON.stringify(req.headers['x-forwarded-for']));
   console.log('routes.deviceReg in: req.body:' + JSON.stringify(req.body));
 
   const scannerConfig = await scanner.getConfig(req.ip);
-  const companyName = scannerConfig.companyName;
+  // const companyName = scannerConfig.companyName;
 
   const listingIds = req.body.listingId.split(',');
 
