@@ -1,4 +1,5 @@
 const iot = require('../api/iot');
+const scanner = require('../api/scanner');
 const storage = require('../api/storage');
 
 const Router = require('express-promise-router');
@@ -10,7 +11,11 @@ module.exports = router;
 
 router.post('/deviceReg', async (req, res) => {
 
+  console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.ip));
   console.log('routes.deviceReg in: req.body:' + JSON.stringify(req.body));
+
+  const scannerConfig = await scanner.getConfig(req.ip);
+  const companyName = scannerConfig.companyName;
 
   const listingIds = req.body.listingId.split(',');
 

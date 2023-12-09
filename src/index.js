@@ -34,7 +34,7 @@ exports.handler = async function(event, context) {
         } else if (context.clientContext.Custom.subject.indexOf('list_scanners') > -1) {
             console.log('list_scanners event: ' + JSON.stringify(event));
 
-            await scanner.getScanners(event);
+            await scanner.getScannerList(event);
 
         } else if (context.clientContext.Custom.subject.indexOf('find_user') > -1 ) {
             console.log('find_user event: ' + JSON.stringify(event));

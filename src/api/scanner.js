@@ -4,14 +4,41 @@ const COL_FACE_IMG_URL = process.env.COL_FACE_IMG_URL;
 const USER_DELETE_API = 'service2dev/api/userDelete';
 const USER_ADD_API = 'service2dev/api/userFaceAdd';
 const USER_FIND_API = 'service2dev/api/findUser';
+const GET_CONFIG_API = 'service2dev/api/getConfig';
 
 const got = require('got');
 const FormData = require('form-data');
 
 const storage = require('../api/storage');
 
-module.exports.getScanners = async ({listingId}) => {
-  console.log('scanner.getScanners in: ' + JSON.stringify({listingId}));
+module.exports.getConfig = async (scannerAddress) => {
+  console.log('scanner.getConfig in: ' + JSON.stringify({scannerAddress}));
+
+  const bodyFormData = new FormData();
+
+  const response = await got.post(`http://${scannerAddress}:${SCANNER_PORT}/${GET_CONFIG_API}`, {
+    body: bodyFormData
+  });
+
+  console.log(response);
+
+  let result;
+
+  if (response) {
+    if (response.body) {
+      if ((JSON.parse(response.body)).data) {
+        result = (JSON.parse(response.body)).data;
+      }
+    }
+  }
+
+  console.log('scanner.getConfig out: result:' + JSON.stringify(result));
+
+  return result;
+};
+
+module.exports.getScannerList = async ({listingId}) => {
+  console.log('scanner.getScannerList in: ' + JSON.stringify({listingId}));
 
   let scannerAddresses = [];
 
@@ -23,7 +50,7 @@ module.exports.getScanners = async ({listingId}) => {
     scannerAddresses = await storage.getScanners({});
   }
 
-  console.log('scanner.getScanners out: results:' + JSON.stringify(scannerAddresses));
+  console.log('scanner.getScannerList out: results:' + JSON.stringify(scannerAddresses));
 
   return scannerAddresses;
 };
