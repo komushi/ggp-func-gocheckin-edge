@@ -578,15 +578,38 @@ module.exports.getHostId = async () => {
 
 };
 
-module.exports.updateListing = async ({hostId, listingId}) => {
+module.exports.deleteListing = async ({hostId, listingId}) => {
 
-  console.log('storage-api.updateListing in:' + JSON.stringify({hostId, listingId}));
+  console.log('storage-api.deleteListing in:' + JSON.stringify({hostId, listingId}));
+
+
+  const param = {
+    TableName: TBL_LISTING,
+    Key: {
+      hostId: hostId,
+      listingId: listingId
+    }
+  };
+
+  const command = new DeleteCommand(param);
+
+  const result = await ddbDocClient.send(command);
+
+  console.log('storage-api.deleteListing out: result:' + JSON.stringify(result));
+
+  return;
+
+};
+
+module.exports.updateListing = async ({hostId, listingId, internalName}) => {
+
+  console.log('storage-api.updateListing in:' + JSON.stringify({hostId, listingId, internalName}));
 
 
   const params = [{
     Put: {
       TableName: TBL_LISTING,
-      Item: {hostId, listingId},
+      Item: {hostId, listingId, internalName},
       ExpressionAttributeNames : {
           '#pk' : 'hostId'
       },
@@ -606,6 +629,24 @@ module.exports.updateListing = async ({hostId, listingId}) => {
 
 };
 
+module.exports.getListings = async () => {
+
+  console.log('storage-api.getListings in');
+
+  const scanParam = {
+    TableName : TBL_LISTING,
+    PageSize : 100
+  };
+
+  const scanCmd = new ScanCommand(scanParam);
+
+  const scanResult = await ddbDocClient.send(scanCmd);
+
+  console.log('storage-api.getListings out:' + JSON.stringify(scanResult.Items));
+
+  return scanResult.Items
+
+};
 
 module.exports.initializeDatabase = async () => {
 

@@ -41,6 +41,10 @@ exports.handler = async function(event, context) {
 
             await scanner.findUsers(event);
 
+        } else if (context.clientContext.Custom.subject.indexOf('list_listings') > -1 ) {
+            console.log('list_listings event: ' + JSON.stringify(event));
+
+            await storage.getListings(event);
         }
 
     } catch (err) {

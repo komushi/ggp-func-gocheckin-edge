@@ -11,9 +11,10 @@ module.exports = router;
 
 router.post('/deviceReg', async (req, res) => {
 
-  console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.ip));
+  // console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.ip));
   console.log('routes.deviceReg in: req.body:' + JSON.stringify(req.body));
 
+/*
   let localIp = req.ip;
 
   if (localIp.substr(0, 7) == "::ffff:") {
@@ -24,6 +25,9 @@ router.post('/deviceReg', async (req, res) => {
   const companyName = scannerConfig.companyName;
 
   console.log('routes.deviceReg companyName:' + companyName);
+*/
+
+  //TODO validate listings by internalName
 
   const listingIds = req.body.listingId.split(',');
 
@@ -36,7 +40,7 @@ router.post('/deviceReg', async (req, res) => {
   if (listingIds.length <= 0) {
     response = {
       'code': 1,
-      'message': 'Please set listingId to <listingId1> or <listingId1>,<listingId2>!!'
+      'message': 'Please set listings to <internalName1> or <internalName1>,<internalName2>!!'
     };
     
     return res.send(response);
