@@ -34,7 +34,7 @@ exports.handler = async function(event) {
 			});			
 		}
 
-		if (event.state.listings) {
+		if (getShadowResult.state.reported.listings != getShadowResult.state.desired.listings) {
 
 			await Promise.allSettled(
 				Object.entries(getShadowResult.state.reported.listings).map(async ([listingId, {internalName}]) => {
