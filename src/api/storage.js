@@ -287,7 +287,7 @@ module.exports.updateScanners = async (params, terminalKey) => {
     const rtnParams = await Promise.all(params.map(async (param) => {
       const rtn = await getScannerRecord(param);
       rtn.lastUpdateOn = crtTimestamp;
-      rtn.hostId = process.env.HOST_ID;
+      // rtn.hostId = process.env.HOST_ID;
 
       return rtn;
     }));

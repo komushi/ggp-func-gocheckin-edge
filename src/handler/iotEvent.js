@@ -27,16 +27,30 @@ exports.handler = async function(event) {
     console.log('iotEventHandler.handler current event:' + JSON.stringify(event));
 
 	if (getShadowResult.state.desired.hostId) {
-		// process.env.HOST_ID = getShadowResult.state.desired.hostId;
-		await storage.updateHost(getShadowResult.state.desired.hostId).catch(err => {
-			console.error('updateHost error' + JSON.stringify(err));
-		});
+		if (event.state.hostId) {
+			process.env.HOST_ID = event.state.hostId;
+			await storage.updateHost(event.state.hostId).catch(err => {
+				console.error('updateHost error' + JSON.stringify(err));
+			});			
+		}
 
+		if (event.state.listings) {
+
+			await Promise.allSettled(
+				Object.entries(getShadowResult.state.reported.listings).map(async ([listingId, {internalName}]) => {
+					await deleteListing({listingId, hostId: getShadowResult.state.desired.hostId});
+			}));
+
+			await Promise.allSettled(
+				Object.entries(getShadowResult.state.desired.listings).map(async ([listingId, {internalName}]) => {
+					await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
+			}));
+		}
+
+
+/*
 		await Promise.allSettled(
 			Object.entries(getShadowResult.state.desired.listings).filter(([listingId, {action, internalName}]) => {
-				console.log('iotEventHandler.handler current listingId:' + listingId);
-				console.log('iotEventHandler.handler current getShadowResult.state.desired.listings:' + JSON.stringify(getShadowResult.state.desired.listings));
-				console.log('Object.keys(event.state.listings).includes(listingId):' + Object.keys(event.state.listings).includes(listingId));
 		        return Object.keys(event.state.listings).includes(listingId);
 		    }).map(async ([listingId, {action, internalName}]) => {
 				if (action == ACTION_UPDATE) {
@@ -50,6 +64,7 @@ exports.handler = async function(event) {
 				}
 	    	
 		}));
+*/
 	}
 
     if (!event.state.reservations) {

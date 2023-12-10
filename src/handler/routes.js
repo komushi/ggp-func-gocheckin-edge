@@ -57,6 +57,7 @@ router.post('/deviceReg', async (req, res) => {
         roomCodes.forEach(roomCode => {
           params.push({
             listingId: listingId,
+            hostId: process.env.HOST_ID,
             terminalKey: req.body.terminalKey,
             terminalName: req.body.terminalName,
             coreName: process.env.AWS_IOT_THING_NAME,
@@ -69,6 +70,7 @@ router.post('/deviceReg', async (req, res) => {
       } else {
         params.push({
           listingId: listingId,
+          hostId: process.env.HOST_ID,
           terminalKey: req.body.terminalKey,
           terminalName: req.body.terminalName,
           coreName: process.env.AWS_IOT_THING_NAME,
