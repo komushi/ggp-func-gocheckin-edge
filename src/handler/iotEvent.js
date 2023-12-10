@@ -33,9 +33,12 @@ exports.handler = async function(event) {
 		});
 
 		await Promise.allSettled(
-			Object.entries(getShadowResult.state.desired.listings).filter(([listingId, {internalName}]) => {
+			Object.entries(getShadowResult.state.desired.listings).filter(([listingId, {action, internalName}]) => {
+				console.log('iotEventHandler.handler current listingId:' + listingId);
+				console.log('iotEventHandler.handler current getShadowResult.state.desired.listings:' + JSON.stringify(getShadowResult.state.desired.listings));
+				console.log('Object.keys(event.state.listings).includes(listingId):' + Object.keys(event.state.listings).includes(listingId));
 		        return Object.keys(event.state.listings).includes(listingId);
-		    }).map(async ([listingId, {internalName}]) => {
+		    }).map(async ([listingId, {action, internalName}]) => {
 				if (action == ACTION_UPDATE) {
 					await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
 				} else if (action == ACTION_REMOVE) {
