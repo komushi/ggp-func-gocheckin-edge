@@ -534,10 +534,10 @@ module.exports.updateHost = async (hostId) => {
     Put: {
       TableName: TBL_HOST,
       Item: { hostId },
-      ExpressionAttributeNames : {
-          '#pk' : 'hostId'
-      },
-      ConditionExpression: 'attribute_not_exists(#pk)'
+      // ExpressionAttributeNames : {
+      //     '#pk' : 'hostId'
+      // },
+      // ConditionExpression: 'attribute_not_exists(#pk)'
     }
   }];
 
