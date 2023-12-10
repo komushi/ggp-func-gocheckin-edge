@@ -37,9 +37,9 @@ exports.handler = async function(event) {
 		        return Object.keys(event.state.listings).includes(listingId);
 		    }).map(async ([listingId, {internalName}]) => {
 				if (action == ACTION_UPDATE) {
-					await updateListing({listingId, getShadowResult.state.desired.hostId, internalName});
+					await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
 				} else if (action == ACTION_REMOVE) {
-					await deleteListing({listingId, getShadowResult.state.desired.hostId});
+					await deleteListing({listingId, hostId: getShadowResult.state.desired.hostId});
 
 					//TODO report iot to clear listing in shadow
 				} else {
