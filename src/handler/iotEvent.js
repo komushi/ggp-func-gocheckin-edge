@@ -28,8 +28,7 @@ exports.handler = async function(event) {
 	if (getShadowResult.state.desired.hostId) {
 		// process.env.HOST_ID = getShadowResult.state.desired.hostId;
 		await storage.updateHost(getShadowResult.state.desired.hostId).catch(err => {
-			console.error('updateHost' + JSON.stringify(err));
-			throw err;
+			console.error('updateHost error' + JSON.stringify(err));
 		});
 
 		await Promise.allSettled(
