@@ -34,21 +34,34 @@ exports.handler = async function(event) {
 			});			
 		}
 
-		if (getShadowResult.state.reported.listings != getShadowResult.state.desired.listings) {
+		if (getShadowResult.state.desired.listings) {
+			if (getShadowResult.state.reported.listings) {
+				if (getShadowResult.state.reported.listings != getShadowResult.state.desired.listings) {
+					await Promise.allSettled(
+						Object.entries(getShadowResult.state.reported.listings).map(async ([listingId, {internalName}]) => {
+							await deleteListing({listingId, hostId: getShadowResult.state.desired.hostId});
+					}));
 
+					await Promise.allSettled(
+						Object.entries(getShadowResult.state.desired.listings).map(async ([listingId, {internalName}]) => {
+							await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
+					}));
+				}
+
+			} else {
+				await Promise.allSettled(
+					Object.entries(getShadowResult.state.desired.listings).map(async ([listingId, {internalName}]) => {
+						await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
+				}));
+			}
+		} else {
 			if (getShadowResult.state.reported.listings) {
 				await Promise.allSettled(
 					Object.entries(getShadowResult.state.reported.listings).map(async ([listingId, {internalName}]) => {
 						await deleteListing({listingId, hostId: getShadowResult.state.desired.hostId});
-				}));				
+				}));
 			}
-
-			await Promise.allSettled(
-				Object.entries(getShadowResult.state.desired.listings).map(async ([listingId, {internalName}]) => {
-					await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
-			}));
 		}
-
 
 /*
 		await Promise.allSettled(
