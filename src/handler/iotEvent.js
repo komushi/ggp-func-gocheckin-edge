@@ -24,6 +24,7 @@ exports.handler = async function(event) {
     	}
     }
 
+    console.log('iotEventHandler.handler current event:' + JSON.stringify(event));
 
 	if (getShadowResult.state.desired.hostId) {
 		// process.env.HOST_ID = getShadowResult.state.desired.hostId;
