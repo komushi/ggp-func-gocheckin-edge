@@ -609,11 +609,7 @@ module.exports.updateListing = async ({hostId, listingId, internalName}) => {
   const params = [{
     Put: {
       TableName: TBL_LISTING,
-      Item: {hostId, listingId, internalName},
-      ExpressionAttributeNames : {
-          '#pk' : 'hostId'
-      }
-      // ConditionExpression: 'attribute_not_exists(#pk)'
+      Item: {hostId, listingId, internalName}
     }
   }];
 
@@ -693,9 +689,11 @@ module.exports.initializeDatabase = async () => {
   const listingCmd = new CreateTableCommand({
     TableName: TBL_LISTING,
     KeySchema: [
-      { AttributeName: 'listingId', KeyType: 'HASH' }
+      { AttributeName: 'hostId', KeyType: 'HASH' },
+      { AttributeName: 'listingId', KeyType: 'RANGE' }
     ],
     AttributeDefinitions: [
+      { AttributeName: 'hostId', AttributeType: 'S' },
       { AttributeName: 'listingId', AttributeType: 'S' }
     ],
     ProvisionedThroughput: {
