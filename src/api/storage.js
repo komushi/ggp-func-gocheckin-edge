@@ -612,8 +612,8 @@ module.exports.updateListing = async ({hostId, listingId, internalName}) => {
       Item: {hostId, listingId, internalName},
       ExpressionAttributeNames : {
           '#pk' : 'hostId'
-      },
-      ConditionExpression: 'attribute_not_exists(#pk)'
+      }
+      // ConditionExpression: 'attribute_not_exists(#pk)'
     }
   }];
 
