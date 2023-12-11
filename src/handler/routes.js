@@ -117,7 +117,7 @@ router.post('/deviceReg', async (req, res) => {
   }
 
   console.log('routes.deviceReg params:' + JSON.stringify(params));
-/*
+
   const scannerResults = await storage.updateScanners(params, req.body.terminalKey);
 
   const publishResults = await iot.publish({
@@ -127,7 +127,7 @@ router.post('/deviceReg', async (req, res) => {
       terminalKey: req.body.terminalKey
     })
   });
-*/
+
   console.log('routes.deviceReg out: publishResults:' + JSON.stringify(publishResults));
 
   return res.send(response);
