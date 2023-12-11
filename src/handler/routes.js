@@ -82,13 +82,15 @@ router.post('/deviceReg', async (req, res) => {
 
     });
 
+    console.log('routes.deviceReg roomCodeObj:' + JSON.stringify(roomCodeObj));
+
     internalNames.forEach(internalName => {
       const roomCodes = roomCodeObj[internalName];
 
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
           params.push({
-            listingId: listingId,
+            listingId: internalName,
             hostId: process.env.HOST_ID,
             terminalKey: req.body.terminalKey,
             terminalName: req.body.terminalName,
@@ -101,7 +103,7 @@ router.post('/deviceReg', async (req, res) => {
         })
       } else {
         params.push({
-          listingId: listingId,
+          listingId: internalName,
           hostId: process.env.HOST_ID,
           terminalKey: req.body.terminalKey,
           terminalName: req.body.terminalName,
@@ -114,6 +116,8 @@ router.post('/deviceReg', async (req, res) => {
     });
   }
 
+  console.log('routes.deviceReg params:' + JSON.stringify(params));
+/*
   const scannerResults = await storage.updateScanners(params, req.body.terminalKey);
 
   const publishResults = await iot.publish({
@@ -123,7 +127,7 @@ router.post('/deviceReg', async (req, res) => {
       terminalKey: req.body.terminalKey
     })
   });
-
+*/
   console.log('routes.deviceReg out: publishResults:' + JSON.stringify(publishResults));
 
   return res.send(response);
