@@ -6,6 +6,7 @@ const IDX_LISTINGID_TERMINALKEY = process.env.IDX_LISTINGID_TERMINALKEY;
 const IDX_TERMINALKEY = process.env.IDX_TERMINALKEY;
 const TBL_RECORD = process.env.TBL_RECORD;
 const TBL_LISTING = process.env.TBL_LISTING;
+const IDX_INTERNALNAME = process.env.IDX_INTERNALNAME;
 const TBL_HOST = process.env.TBL_HOST;
 
 const config = {
@@ -644,6 +645,34 @@ module.exports.getListings = async () => {
 
 };
 
+module.exports.getListing = async (internalName) => {
+
+  console.log('getListing in: internalName:' + internalName);
+
+  const param = {
+    TableName: TBL_LISTING,
+    IndexName: IDX_INTERNALNAME,
+    KeyConditionExpression: 'internalName = :internalName',
+    ExpressionAttributeValues: {
+      ':internalName': internalName
+    }    
+  };
+
+  const command = new QueryCommand(param);
+
+  const data = await ddbDocClient.send(command);
+
+  if (data.Items.length == 0) {
+    console.log('getListing out');
+
+    return;
+  } else {
+    console.log('getListing out:' + JSON.stringify(data.Items[0]));
+
+    return data.Items[0];
+  }
+};
+
 module.exports.initializeDatabase = async () => {
 
   console.log('storage-api.initializeDatabase in:');
@@ -699,7 +728,22 @@ module.exports.initializeDatabase = async () => {
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5
-    }
+    },
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: IDX_INTERNALNAME,
+        KeySchema: [
+          { AttributeName: 'internalName', KeyType: 'HASH'}
+        ],
+        Projection: {
+          ProjectionType: 'ALL'
+        },
+        ProvisionedThroughput: {
+          ReadCapacityUnits: 5,
+          WriteCapacityUnits: 5
+        }
+      },
+    ]
   });
 
   const reservationCmd = new CreateTableCommand({

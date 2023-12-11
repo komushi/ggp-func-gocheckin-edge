@@ -85,12 +85,26 @@ router.post('/deviceReg', async (req, res) => {
     console.log('routes.deviceReg roomCodeObj:' + JSON.stringify(roomCodeObj));
 
     internalNames.forEach(internalName => {
+      const listing = await getListing(internalName);
+
+      let listingId;
+      if (!listing) {
+        response = {
+          'code': 1,
+          'message': 'The internalName ' + internalName + ' does not exist!!'
+        };
+
+        return res.send(response);
+      } else {
+        listingId = listing.listingId;
+      }
+
       const roomCodes = roomCodeObj[internalName];
 
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
           params.push({
-            listingId: internalName,
+            listingId: listingId,
             hostId: process.env.HOST_ID,
             terminalKey: req.body.terminalKey,
             terminalName: req.body.terminalName,
@@ -103,7 +117,7 @@ router.post('/deviceReg', async (req, res) => {
         })
       } else {
         params.push({
-          listingId: internalName,
+          listingId: listingId,
           hostId: process.env.HOST_ID,
           terminalKey: req.body.terminalKey,
           terminalName: req.body.terminalName,
