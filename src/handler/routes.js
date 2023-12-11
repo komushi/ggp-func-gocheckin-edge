@@ -92,10 +92,11 @@ router.post('/deviceReg', async (req, res) => {
 
       let listingId;
       if (!listing) {
-        acc.push([{
-          // error: 'The internalName ' + internalName + ' does not exist!!'
-          error: internalName
-        }]);
+        // acc.push({
+        //   error: internalName
+        // });
+
+        acc.push(1);
 
         return acc;
       } else {
@@ -106,29 +107,32 @@ router.post('/deviceReg', async (req, res) => {
 
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
-          acc.push([{
-            listingId: listingId,
-            hostId: process.env.HOST_ID,
-            terminalKey: req.body.terminalKey,
-            terminalName: req.body.terminalName,
-            coreName: process.env.AWS_IOT_THING_NAME,
-            localIp: req.body.localIp,
-            latitude: req.body.latitude,
-            longitude: req.body.longitude,
-            roomCode: roomCode
-          }]);
+          // acc.push({
+          //   listingId: listingId,
+          //   hostId: process.env.HOST_ID,
+          //   terminalKey: req.body.terminalKey,
+          //   terminalName: req.body.terminalName,
+          //   coreName: process.env.AWS_IOT_THING_NAME,
+          //   localIp: req.body.localIp,
+          //   latitude: req.body.latitude,
+          //   longitude: req.body.longitude,
+          //   roomCode: roomCode
+          // });
+          acc.push(2);
         })
       } else {
-        acc.push([{
-          listingId: listingId,
-          hostId: process.env.HOST_ID,
-          terminalKey: req.body.terminalKey,
-          terminalName: req.body.terminalName,
-          coreName: process.env.AWS_IOT_THING_NAME,
-          localIp: req.body.localIp,
-          latitude: req.body.latitude,
-          longitude: req.body.longitude
-        }]);        
+        // acc.push({
+        //   listingId: listingId,
+        //   hostId: process.env.HOST_ID,
+        //   terminalKey: req.body.terminalKey,
+        //   terminalName: req.body.terminalName,
+        //   coreName: process.env.AWS_IOT_THING_NAME,
+        //   localIp: req.body.localIp,
+        //   latitude: req.body.latitude,
+        //   longitude: req.body.longitude
+        // });
+
+        acc.push(3);     
       }
 
       return acc;
