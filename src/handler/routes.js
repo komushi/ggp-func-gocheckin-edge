@@ -89,12 +89,12 @@ router.post('/deviceReg', async (req, res) => {
 
       let listingId;
       if (!listing) {
-        response = {
-          'code': 1,
-          'message': 'The internalName ' + internalName + ' does not exist!!'
-        };
+        params.push({
+          // error: 'The internalName ' + internalName + ' does not exist!!'
+          error: internalName
+        });
 
-        return res.send(response);
+        return;
       } else {
         listingId = listing.listingId;
       }
@@ -131,6 +131,23 @@ router.post('/deviceReg', async (req, res) => {
   }
 
   console.log('routes.deviceReg params:' + JSON.stringify(params));
+
+  let initialValue;
+  const errors = params.filter(param => {
+    return 'error' in param;
+  }).reduce(
+    (accumulator, currentValue) => accumulator + ',' + currentValue,
+    initialValue,
+  );
+
+  if (errors) {
+    response = {
+      'code': 1,
+      'message': 'The internalName ' + errors + ' do not exist!!'
+    };
+
+    return res.send(response);
+  }
 
   const scannerResults = await storage.updateScanners(params, req.body.terminalKey);
 
