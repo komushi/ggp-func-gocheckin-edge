@@ -84,6 +84,51 @@ router.post('/deviceReg', async (req, res) => {
 
     console.log('routes.deviceReg roomCodeObj:' + JSON.stringify(roomCodeObj));
 
+    params = internalNames.reduce(async (acc, internalName) => {
+      const listing = await storage.getListing(internalName);
+
+      let listingId;
+      if (!listing) {
+        acc.push({
+          // error: 'The internalName ' + internalName + ' does not exist!!'
+          error: internalName
+        });
+
+        return acc;
+      } else {
+        listingId = listing.listingId;
+      }
+
+      const roomCodes = roomCodeObj[internalName];
+
+      if (roomCodes && roomCodes.length > 0) {
+        roomCodes.forEach(roomCode => {
+          acc.push({
+            listingId: listingId,
+            hostId: process.env.HOST_ID,
+            terminalKey: req.body.terminalKey,
+            terminalName: req.body.terminalName,
+            coreName: process.env.AWS_IOT_THING_NAME,
+            localIp: req.body.localIp,
+            latitude: req.body.latitude,
+            longitude: req.body.longitude,
+            roomCode: roomCode
+          });
+        })
+      } else {
+        acc.push({
+          listingId: listingId,
+          hostId: process.env.HOST_ID,
+          terminalKey: req.body.terminalKey,
+          terminalName: req.body.terminalName,
+          coreName: process.env.AWS_IOT_THING_NAME,
+          localIp: req.body.localIp,
+          latitude: req.body.latitude,
+          longitude: req.body.longitude
+        });        
+      }
+    });
+/*
     internalNames.forEach(async (internalName) => {
       const listing = await storage.getListing(internalName);
 
@@ -128,6 +173,7 @@ router.post('/deviceReg', async (req, res) => {
         });        
       }
     });
+*/    
   }
 
   console.log('routes.deviceReg params:' + JSON.stringify(params));
