@@ -27,12 +27,10 @@ exports.handler = async function(event) {
     console.log('iotEventHandler.handler current event:' + JSON.stringify(event));
 
 	if (getShadowResult.state.desired.hostId) {
-		if (event.state.hostId) {
-			process.env.HOST_ID = event.state.hostId;
-			await storage.updateHost(event.state.hostId).catch(err => {
-				console.error('updateHost error' + JSON.stringify(err));
-			});			
-		}
+		process.env.HOST_ID = getShadowResult.state.desired.hostId;
+		await storage.updateHost(getShadowResult.state.desired.hostId).catch(err => {
+			console.error('updateHost error' + JSON.stringify(err));
+		});
 
 		if (event.state.listings) {
 			await Promise.allSettled(
