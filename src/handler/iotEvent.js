@@ -34,6 +34,24 @@ exports.handler = async function(event) {
 			});			
 		}
 
+		if (event.state.listings) {
+			await Promise.allSettled(
+				Object.entries(getShadowResult.state.desired.listings).filter(([listingId, {action, internalName}]) => {
+			        return Object.keys(event.state.listings).includes(listingId);
+			    }).map(async ([listingId, {action, internalName}]) => {
+					if (action == ACTION_UPDATE) {
+						await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
+					} else if (action == ACTION_REMOVE) {
+						await deleteListing({listingId, hostId: getShadowResult.state.desired.hostId});
+
+						//TODO report iot to clear listing in shadow
+					} else {
+						throw new Error(`Wrong listing action ${action}!`);
+					}
+		    	
+			}));
+		}
+/*
 		if (getShadowResult.state.desired.listings) {
 			if (getShadowResult.state.reported.listings) {
 				if (getShadowResult.state.reported.listings != getShadowResult.state.desired.listings) {
@@ -63,7 +81,7 @@ exports.handler = async function(event) {
 			}
 		}
 
-/*
+
 		await Promise.allSettled(
 			Object.entries(getShadowResult.state.desired.listings).filter(([listingId, {action, internalName}]) => {
 		        return Object.keys(event.state.listings).includes(listingId);
