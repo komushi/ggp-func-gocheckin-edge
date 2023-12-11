@@ -87,15 +87,15 @@ router.post('/deviceReg', async (req, res) => {
     params = await internalNames.reduce(async (acc, internalName) => {
 
       console.log('routes.deviceReg acc:' + JSON.stringify(acc));
-      
+
       const listing = await storage.getListing(internalName);
 
       let listingId;
       if (!listing) {
-        acc.push({
+        acc.push([{
           // error: 'The internalName ' + internalName + ' does not exist!!'
           error: internalName
-        });
+        }]);
 
         return acc;
       } else {
@@ -106,7 +106,7 @@ router.post('/deviceReg', async (req, res) => {
 
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
-          acc.push({
+          acc.push([{
             listingId: listingId,
             hostId: process.env.HOST_ID,
             terminalKey: req.body.terminalKey,
@@ -116,10 +116,10 @@ router.post('/deviceReg', async (req, res) => {
             latitude: req.body.latitude,
             longitude: req.body.longitude,
             roomCode: roomCode
-          });
+          }]);
         })
       } else {
-        acc.push({
+        acc.push([{
           listingId: listingId,
           hostId: process.env.HOST_ID,
           terminalKey: req.body.terminalKey,
@@ -128,7 +128,7 @@ router.post('/deviceReg', async (req, res) => {
           localIp: req.body.localIp,
           latitude: req.body.latitude,
           longitude: req.body.longitude
-        });        
+        }]);        
       }
 
       return acc;
