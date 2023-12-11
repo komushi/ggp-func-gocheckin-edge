@@ -723,7 +723,8 @@ module.exports.initializeDatabase = async () => {
     ],
     AttributeDefinitions: [
       { AttributeName: 'hostId', AttributeType: 'S' },
-      { AttributeName: 'listingId', AttributeType: 'S' }
+      { AttributeName: 'listingId', AttributeType: 'S' },
+      { AttributeName: 'internalName', AttributeType: 'S' }
     ],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
@@ -742,7 +743,7 @@ module.exports.initializeDatabase = async () => {
           ReadCapacityUnits: 5,
           WriteCapacityUnits: 5
         }
-      },
+      }
     ]
   });
 
