@@ -127,7 +127,9 @@ router.post('/deviceReg', async (req, res) => {
           longitude: req.body.longitude
         });        
       }
-    });
+
+      return acc;
+    }, []);
 /*
     internalNames.forEach(async (internalName) => {
       const listing = await storage.getListing(internalName);
