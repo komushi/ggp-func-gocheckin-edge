@@ -84,7 +84,7 @@ router.post('/deviceReg', async (req, res) => {
 
     console.log('routes.deviceReg roomCodeObj:' + JSON.stringify(roomCodeObj));
 
-    params = internalNames.reduce(async (acc, internalName) => {
+    params = await internalNames.reduce(async (acc, internalName) => {
       const listing = await storage.getListing(internalName);
 
       let listingId;
