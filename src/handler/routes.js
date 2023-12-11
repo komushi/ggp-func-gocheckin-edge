@@ -29,7 +29,7 @@ router.post('/deviceReg', async (req, res) => {
 
   //TODO validate listings by internalName
 
-  const listingIds = req.body.listingId.split(',');
+  const internalNames = req.body.listingId.split(',');
 
   let response = {
     'code': 0,
@@ -37,21 +37,53 @@ router.post('/deviceReg', async (req, res) => {
   };
 
   let params = [];
-  if (listingIds.length <= 0) {
+  let roomCodeObj = {};
+  if (internalNames.length == 0) {
     response = {
       'code': 1,
-      'message': 'Please set listings to <internalName1> or <internalName1>,<internalName2>!!'
+      'message': 'Set the listings to <internalName1>,<internalName2>!'
     };
     
     return res.send(response);
 
   } else {
-    listingIds.forEach(listingId => {
 
-      let roomCodes;
-      if (req.body.roomCode) {
-        roomCodes = JSON.parse(req.body.roomCode)[listingId];
+    listingRoomCodes = req.body.roomCode.split(',');
+
+    listingRoomCodes.forEach(listingRoomCode => {
+      const listingRoomCodeSplit = listingRoomCode.split('-');
+      if (listingRoomCodeSplit.length != 2) {
+        response = {
+          'code': 1,
+          'message': 'Set the roomCodes to <internalName1-room1>,<internalName2-room2>..!'
+        };
+
+        return res.send(response);
       }
+
+      const crtInternalName = listingRoomCodeSplit[0];
+      const crtRoomCode = listingRoomCodeSplit[1];
+
+      if (internalNames.includes(crtInternalName)) {
+        if (roomCodeObj[crtInternalName]) {
+          roomCodeObj[crtInternalName].push(crtRoomCode);
+        } else {
+          roomCodeObj[crtInternalName] = [crtRoomCode];
+        }
+
+      } else {
+        response = {
+          'code': 1,
+          'message': 'The internalName in roomCodes need to match the listings!!'
+        };
+
+        return res.send(response);
+      }
+
+    });
+
+    internalNames.forEach(internalName => {
+      const roomCodes = roomCodeObj[internalName];
 
       if (roomCodes && roomCodes.length > 0) {
         roomCodes.forEach(roomCode => {
