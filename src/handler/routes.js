@@ -13,6 +13,7 @@ router.post('/deviceReg', async (req, res) => {
 
   // console.log('routes.deviceReg in: req.ip:' + JSON.stringify(req.ip));
   console.log('routes.deviceReg in: req.body:' + JSON.stringify(req.body));
+  console.log('routes.deviceReg in HOST_ID:' + process.env.HOST_ID);
 
 /*
   let localIp = req.ip;
@@ -134,52 +135,6 @@ router.post('/deviceReg', async (req, res) => {
 
       return acc;
     }, []);
-/*
-    internalNames.forEach(async (internalName) => {
-      const listing = await storage.getListing(internalName);
-
-      let listingId;
-      if (!listing) {
-        params.push({
-          // error: 'The internalName ' + internalName + ' does not exist!!'
-          error: internalName
-        });
-
-        return;
-      } else {
-        listingId = listing.listingId;
-      }
-
-      const roomCodes = roomCodeObj[internalName];
-
-      if (roomCodes && roomCodes.length > 0) {
-        roomCodes.forEach(roomCode => {
-          params.push({
-            listingId: listingId,
-            hostId: process.env.HOST_ID,
-            terminalKey: req.body.terminalKey,
-            terminalName: req.body.terminalName,
-            coreName: process.env.AWS_IOT_THING_NAME,
-            localIp: req.body.localIp,
-            latitude: req.body.latitude,
-            longitude: req.body.longitude,
-            roomCode: roomCode
-          });
-        })
-      } else {
-        params.push({
-          listingId: listingId,
-          hostId: process.env.HOST_ID,
-          terminalKey: req.body.terminalKey,
-          terminalName: req.body.terminalName,
-          coreName: process.env.AWS_IOT_THING_NAME,
-          localIp: req.body.localIp,
-          latitude: req.body.latitude,
-          longitude: req.body.longitude
-        });        
-      }
-    });
-*/    
   }
 
   console.log('routes.deviceReg params:' + JSON.stringify(params));
@@ -264,6 +219,7 @@ router.post('/uploadMipsGateRecord', async (req, res) => {
   }
 
   // await storage.saveScanRecord(payload);
+  console.log('routes.uploadMipsGateRecord in HOST_ID:' + process.env.HOST_ID);
 
   const iotPayload = {
     reservationCode: payload.group,
