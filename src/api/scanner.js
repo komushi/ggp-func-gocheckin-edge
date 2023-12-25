@@ -37,24 +37,6 @@ module.exports.getConfig = async (scannerAddress) => {
   return result;
 };
 
-module.exports.getScannerList = async ({listingId}) => {
-  console.log('scanner.getScannerList in: ' + JSON.stringify({listingId}));
-
-  let scannerAddresses = [];
-
-  if (listingId) {
-    scannerAddresses = await storage.getScanners({
-      listingId: listingId
-    });    
-  } else {
-    scannerAddresses = await storage.getScanners({});
-  }
-
-  console.log('scanner.getScannerList out: results:' + JSON.stringify(scannerAddresses));
-
-  return scannerAddresses;
-};
-
 module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
   console.log('scanner.findUsers in: ' + JSON.stringify({listingId, userName, userCode, group}));
 

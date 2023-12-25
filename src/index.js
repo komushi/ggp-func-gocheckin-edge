@@ -31,22 +31,12 @@ exports.handler = async function(event, context) {
 
             await iotEventHandler.handler(event);
 
-        } else if (context.clientContext.Custom.subject.indexOf('list_scanners') > -1) {
-            console.log('list_scanners event: ' + JSON.stringify(event));
-
-            await scanner.getScannerList(event);
-
         } else if (context.clientContext.Custom.subject.indexOf('find_user') > -1 ) {
             console.log('find_user event: ' + JSON.stringify(event));
 
             await scanner.findUsers(event);
 
-        } else if (context.clientContext.Custom.subject.indexOf('list_listings') > -1 ) {
-            console.log('list_listings event: ' + JSON.stringify(event));
-
-            await storage.getListings(event);
         }
-
     } catch (err) {
         console.error('!!!!!!error happened at handler start!!!!!!');
         console.error(err.name);
@@ -84,6 +74,13 @@ const initialize = () => {
 
             if (!process.env.HOST_ID) {
                 process.env.HOST_ID = await storage.getHostId();    
+            }
+
+            if (!process.env.PROPERTY_CODE) {
+                if (process.env.HOST_ID) {
+                    const property = await storage.getProperty(process.env.HOST_ID);    
+                    process.env.PROPERTY_CODE = property.propertyCode;                    
+                }
             }
         } catch (err) {
             console.error('!!!!!!error happened at initialize method start!!!!!!');

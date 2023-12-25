@@ -1,13 +1,18 @@
 const TBL_RESERVATION = process.env.TBL_RESERVATION;
 const TBL_MEMBER = process.env.TBL_MEMBER;
-const TBL_SCANNER = process.env.TBL_SCANNER;
-const IDX_LISTINGID_ROOMCODE = process.env.IDX_LISTINGID_ROOMCODE;
-const IDX_LISTINGID_TERMINALKEY = process.env.IDX_LISTINGID_TERMINALKEY;
-const IDX_TERMINALKEY = process.env.IDX_TERMINALKEY;
+// const TBL_SCANNER = process.env.TBL_SCANNER;
+// const IDX_LISTINGID_ROOMCODE = process.env.IDX_LISTINGID_ROOMCODE;
+// const IDX_LISTINGID_TERMINALKEY = process.env.IDX_LISTINGID_TERMINALKEY;
+// const IDX_TERMINALKEY = process.env.IDX_TERMINALKEY;
 const TBL_RECORD = process.env.TBL_RECORD;
-const TBL_LISTING = process.env.TBL_LISTING;
-const IDX_INTERNALNAME = process.env.IDX_INTERNALNAME;
+// const TBL_LISTING = process.env.TBL_LISTING;
+// const IDX_INTERNALNAME = process.env.IDX_INTERNALNAME;
 const TBL_HOST = process.env.TBL_HOST;
+
+
+const TBL_EQUIPMENT = process.env.TBL_EQUIPMENT;
+const IDX_HOST_PROPERTYCODE = process.env.IDX_HOST_PROPERTYCODE;
+const IDX_EQUIPMENT_ID = process.env.IDX_EQUIPMENT_ID;
 
 const config = {
   endpoint: process.env.DDB_ENDPOINT || 'http://localhost:8080',
@@ -218,24 +223,24 @@ module.exports.getReservation = async ({reservationCode, listingId}) => {
 
 };
 
+//TODO
 const getScannerRecord = async (param) => {
 
   console.log(`storage-api getScannerRecord in: ${JSON.stringify(param)}`);
 
   const data = await ddbDocClient.send(
     new QueryCommand({
-      TableName: TBL_SCANNER,
-      IndexName: IDX_LISTINGID_TERMINALKEY,
+      TableName: TBL_EQUIPMENT,
+      IndexName: IDX_EQUIPMENT_ID,
       KeyConditionExpression: '#hkey = :hkey AND #rkey = :rkey',
       ExpressionAttributeNames : {
-          '#hkey' : 'listingId',
-          '#rkey' : 'terminalKey'
+          '#hkey' : 'equipmentId',
+          '#rkey' : 'roomCode'
       },
       ExpressionAttributeValues: {
-        ':hkey': param.listingId,
-        ':rkey': param.terminalKey
+        ':hkey': param.equipmentId,
+        ':rkey': param.roomCode
       }
-
     })
   ).catch(error => {
     console.log('storage-api getScannerRecord error', JSON.stringify(error));
@@ -245,33 +250,7 @@ const getScannerRecord = async (param) => {
   if (data.Items.length == 0) {
     param.uuid = uid.randomUUID(6);
   } else {
-    const index = data.Items.findIndex(item => {
-      if (param.roomCode) {
-        if (item.roomCode) {
-          if (item.roomCode == param.roomCode) {
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          return false;
-        }
-      } else {
-        if (item.roomCode) {
-          return false;
-        } else {
-          return true;
-        }
-      }
-    });
-
-    if (index > -1) {
-      param.uuid = data.Items[index].uuid;  
-
-    } else {
-      param.uuid = uid.randomUUID(6);
-    }
-    
+    param.uuid = data.Items[0].uuid;    
   }
 
   console.log(`storage-api getScannerRecord out: ${JSON.stringify(param)}`);
@@ -279,35 +258,32 @@ const getScannerRecord = async (param) => {
   return param;
 };
 
-module.exports.updateScanners = async (params, terminalKey) => {
+module.exports.updateScanners = async (params, equipmentId) => {
 
-    console.log('storage-api.updateScanners in: params:' + JSON.stringify({params, terminalKey}));
+    console.log('storage-api.updateScanners in: params:' + JSON.stringify({params, equipmentId}));
 
     const crtTimestamp = (new Date).toISOString();
 
     const rtnParams = await Promise.all(params.map(async (param) => {
       const rtn = await getScannerRecord(param);
       rtn.lastUpdateOn = crtTimestamp;
-      // rtn.hostId = process.env.HOST_ID;
-
       return rtn;
     }));
 
     const txnParams = rtnParams.map((param) => {
       return {
         Put: {
-          TableName: TBL_SCANNER,
+          TableName: TBL_EQUIPMENT,
           Item: param
         }
       }
     });
 
-    const delParams = await getDelScannerParams(terminalKey);
+    const delParams = await getDelScannerParams(equipmentId);
 
     await Promise.all(delParams.map(async (param) => {
       const command = new DeleteCommand(param);
       return await ddbDocClient.send(command); 
-
     }));
 
     const txnCommand = new TransactWriteCommand({
@@ -319,19 +295,19 @@ module.exports.updateScanners = async (params, terminalKey) => {
     console.log('storage-api.updateScanners out:' + JSON.stringify(rtnParams));
 
     return rtnParams;
-
 };
 
-const getDelScannerParams = async (terminalKey) => {
 
-  console.log('storage-api.getDelScannerParams in: terminalKey:' + terminalKey);
+const getDelScannerParams = async (equipmentId) => {
+
+  console.log('storage-api.getDelScannerParams in: equipmentId:' + equipmentId);
 
   const param = {
-    TableName: TBL_SCANNER,
-    IndexName: IDX_TERMINALKEY,
-    KeyConditionExpression: 'terminalKey = :terminalKey',
+    TableName: TBL_EQUIPMENT,
+    IndexName: IDX_EQUIPMENT_ID,
+    KeyConditionExpression: 'equipmentId = :equipmentId',
     ExpressionAttributeValues: {
-      ':terminalKey': terminalKey
+      ':equipmentId': equipmentId
     }    
   };
 
@@ -341,11 +317,12 @@ const getDelScannerParams = async (terminalKey) => {
 
   const params = data.Items.map(item => {
     return {
-      TableName: TBL_SCANNER,
+      TableName: TBL_EQUIPMENT,
       Key: {
+        hostId: item.hostId,
         uuid: item.uuid
       }
-    }
+    };
   });
 
   console.log('storage-api.getDelScannerParams out: params:' + JSON.stringify(params));
@@ -417,33 +394,6 @@ module.exports.getScanners = async ({listingId, roomCode}) => {
   return [...new Set(localIps)];
 
 };
-
-module.exports.saveScanRecord = async (record) => {
-
-  console.log('storage-api.saveScanRecord in: record:', record);
-
-  const params = [{
-    Put: {
-      TableName: TBL_RECORD,
-      Item: record,
-      ExpressionAttributeNames : {
-          '#pk' : 'terminalKey'
-      },
-      ConditionExpression: 'attribute_not_exists(#pk)'
-    }
-  }];
-
-  const command = new TransactWriteCommand({
-    TransactItems: params
-  });
-
-  const result = await ddbDocClient.send(command);  
-
-  console.log('storage-api.saveScanRecord out: result:' + JSON.stringify(result));
-
-  return result;
-};
-
 
 module.exports.saveMembers = async (records) => {
 
@@ -575,10 +525,100 @@ module.exports.getHostId = async () => {
 
   console.log('storage-api.updateHost out: hostId:' + hostId);
 
-  return hostId
+  return hostId;
 
 };
 
+module.exports.getProperty = async (hostId) => {
+
+  console.log('storage-api.getProperty in' + hostId);
+
+  const result = await this.ddbDocClient.send(
+    new QueryCommand({
+      TableName: TBL_EQUIPMENT,
+      ProjectionExpression: attributes?.join(),
+      KeyConditionExpression: '#hkey = :hkey',
+      FilterExpression: '#category = :category',
+      ExpressionAttributeNames : {
+          '#hkey' : 'hostId',
+          '#category': 'category'
+      },
+      ExpressionAttributeValues: {
+        ':hkey': hostId,
+        ':category': 'PROPERTY'
+      }
+    })
+  );
+
+  if (result.Items?.length > 0) {
+    console.log('storage-api.getProperty out: property' + JSON.stringify(result.Items[0]));
+
+    return result.Items[0];
+
+  } else {
+    console.log(`hosts.dao getProperties out: empty`);
+
+    return;
+  }
+};
+
+module.exports.updatProperty = async (hostId, property) => {
+
+  console.log('storage-api.updatProperty in' + JSON.stringify({hostId, property}));
+
+  const result = await this.ddbDocClient.send(
+    new QueryCommand({
+      TableName: TBL_EQUIPMENT,
+      ProjectionExpression: attributes?.join(),
+      KeyConditionExpression: '#hkey = :hkey',
+      FilterExpression: '#category = :category',
+      ExpressionAttributeNames : {
+          '#hkey' : 'hostId',
+          '#category': 'category'
+      },
+      ExpressionAttributeValues: {
+        ':hkey': hostId,
+        ':category': 'PROPERTY'
+      }
+    })
+  );
+
+  await Promise.all(result.Items.map(async (item) => {
+    const param = {
+      TableName: TBL_EQUIPMENT,
+      Key: {
+        hostId: item.hostId,
+        uuid: item.uuid
+      }
+    };
+
+    return await ddbDocClient.send(new DeleteCommand(param)); 
+
+  }));
+
+  const params = [{
+    Put: {
+      TableName: TBL_EQUIPMENT,
+      Item: {
+        hostId: hostId,
+        uuid: property.uuid,
+        hostPropertyCode: `${hostId}-${property.propertyCode}`,
+        propertyCode: property.propertyCode,
+        category: 'PROPERTY'
+      }
+    }
+  }];
+
+  const writeResult = await ddbDocClient.send(new TransactWriteCommand({TransactItems: params}));
+
+  console.log('storage-api.updatProperty writeResult:' + JSON.stringify(writeResult));
+
+  console.log('storage-api.updatProperty out');
+
+  return;
+};
+
+/*
 module.exports.deleteListing = async ({hostId, listingId}) => {
 
   console.log('storage-api.deleteListing in:' + JSON.stringify({hostId, listingId}));
@@ -672,6 +712,7 @@ module.exports.getListing = async (internalName) => {
     return data.Items[0];
   }
 };
+*/
 
 module.exports.initializeDatabase = async () => {
 
@@ -681,9 +722,9 @@ module.exports.initializeDatabase = async () => {
     TableName: TBL_HOST
   });
 
-  const listingDeleteCmd = new DeleteTableCommand({
-    TableName: TBL_LISTING
-  });
+  // const listingDeleteCmd = new DeleteTableCommand({
+  //   TableName: TBL_LISTING
+  // });
 
   const reservationDeleteCmd = new DeleteTableCommand({
     TableName: TBL_RESERVATION
@@ -693,9 +734,9 @@ module.exports.initializeDatabase = async () => {
     TableName: TBL_MEMBER
   });
 
-  const scannerDeleteCmd = new DeleteTableCommand({
-    TableName: TBL_SCANNER
-  });
+  // const scannerDeleteCmd = new DeleteTableCommand({
+  //   TableName: TBL_SCANNER
+  // });
 
   const recordDeleteCmd = new DeleteTableCommand({
     TableName: TBL_RECORD
@@ -714,7 +755,7 @@ module.exports.initializeDatabase = async () => {
       WriteCapacityUnits: 5
     }
   });
-
+/*
   const listingCmd = new CreateTableCommand({
     TableName: TBL_LISTING,
     KeySchema: [
@@ -746,7 +787,7 @@ module.exports.initializeDatabase = async () => {
       }
     ]
   });
-
+*/
   const reservationCmd = new CreateTableCommand({
     TableName: TBL_RESERVATION,
     KeySchema: [
@@ -780,7 +821,7 @@ module.exports.initializeDatabase = async () => {
     }
   });
 
-
+/*
   const scannerCmd = new CreateTableCommand({
     TableName: TBL_SCANNER,
     KeySchema: [
@@ -840,7 +881,7 @@ module.exports.initializeDatabase = async () => {
       }
     ]
   });
-
+*/
   const recordCmd = new CreateTableCommand({
     TableName: TBL_RECORD,
     KeySchema: [
@@ -859,10 +900,10 @@ module.exports.initializeDatabase = async () => {
 
   const deleteResults = await Promise.allSettled([
     ddbDocClient.send(hostDeleteCmd),
-    ddbDocClient.send(listingDeleteCmd),
+    // ddbDocClient.send(listingDeleteCmd),
     ddbDocClient.send(reservationDeleteCmd),
     ddbDocClient.send(memberDeleteCmd),
-    ddbDocClient.send(scannerDeleteCmd),
+    // ddbDocClient.send(scannerDeleteCmd),
     ddbDocClient.send(recordDeleteCmd)
   ]);
 
@@ -870,10 +911,10 @@ module.exports.initializeDatabase = async () => {
 
   const createResults = await Promise.allSettled([
     ddbDocClient.send(hostCmd),
-    ddbDocClient.send(listingCmd),
+    // ddbDocClient.send(listingCmd),
     ddbDocClient.send(reservationCmd),
     ddbDocClient.send(memberCmd),
-    ddbDocClient.send(scannerCmd),
+    // ddbDocClient.send(scannerCmd),
     ddbDocClient.send(recordCmd)
   ]);
 
@@ -894,10 +935,10 @@ module.exports.checkDynamoDB = async () => {
     Limit: 1
   });
 
-  const listingCmd = new ListTablesCommand({
-    ExclusiveStartTableName: TBL_LISTING,
-    Limit: 1
-  });
+  // const listingCmd = new ListTablesCommand({
+  //   ExclusiveStartTableName: TBL_LISTING,
+  //   Limit: 1
+  // });
 
   const reservationCmd = new ListTablesCommand({
     ExclusiveStartTableName: TBL_RESERVATION,
@@ -909,10 +950,10 @@ module.exports.checkDynamoDB = async () => {
     Limit: 1
   });
 
-  const scannerCmd = new ListTablesCommand({
-    ExclusiveStartTableName: TBL_SCANNER,
-    Limit: 1
-  });
+  // const scannerCmd = new ListTablesCommand({
+  //   ExclusiveStartTableName: TBL_SCANNER,
+  //   Limit: 1
+  // });
 
   const recordCmd = new ListTablesCommand({
     ExclusiveStartTableName: TBL_RECORD,

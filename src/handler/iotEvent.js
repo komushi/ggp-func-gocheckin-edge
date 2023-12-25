@@ -30,39 +30,29 @@ exports.handler = async function(event) {
 		console.log('iotEventHandler.handler before HOST_ID:' + process.env.HOST_ID);
 		process.env.HOST_ID = getShadowResult.state.desired.hostId;
 		console.log('iotEventHandler.handler after HOST_ID:' + process.env.HOST_ID);
+
 		await storage.updateHost(getShadowResult.state.desired.hostId).catch(err => {
 			console.error('updateHost error' + JSON.stringify(err));
 		});
+	}
 
-		if (event.state.listings) {
-			await Promise.allSettled(
-				Object.entries(getShadowResult.state.desired.listings).filter(([listingId, {action, internalName}]) => {
-			        return Object.keys(event.state.listings).includes(listingId);
-			    }).map(async ([listingId, {action, internalName}]) => {
-					if (action == ACTION_UPDATE) {
-						await updateListing({listingId, hostId: getShadowResult.state.desired.hostId, internalName});
-					} else if (action == ACTION_REMOVE) {
-						await deleteListing({listingId, hostId: getShadowResult.state.desired.hostId});
-
-						//TODO report iot to clear listing in shadow
-					} else {
-						throw new Error(`Wrong listing action ${action}!`);
-					}
-		    	
-			}));
-		}
-
+	if (getShadowResult.state.desired.property) {
+		console.log('iotEventHandler.handler before PROPERTY_CODE:' + process.env.PROPERTY_CODE);
+		process.env.PROPERTY_CODE = getShadowResult.state.desired.property.propertyCode;
+		console.log('iotEventHandler.handler after PROPERTY_CODE:' + process.env.PROPERTY_CODE);
+		
+		await storage.updatProperty(getShadowResult.state.desired.hostId, getShadowResult.state.desired.property).catch(err => {
+			console.error('updatProperty error' + JSON.stringify(err));
+		});
 	}
 
     if (!event.state.reservations) {
-
         console.log('reservations not specified in delta!!');
 
 	    await iot.updateReportedShadow({
 	        thingName: AWS_IOT_THING_NAME,
 	        reportedState: getShadowResult.state.desired
 	    });
-
     } else {
 
     	const syncResults = await Promise.allSettled(
