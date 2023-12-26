@@ -58,14 +58,6 @@ const initialize = async () => {
 
     console.log('Edge gateway initialize in');
 
-    const app = express();
-
-    app.use(express.json({limit: '50mb'})); 
-    app.use(express.urlencoded({limit: '50mb', extended: true}));
-    routerHandler(app);
-
-    app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
-
     if (!process.env.HOST_ID) {
         process.env.HOST_ID = await storage.getHostId();    
     }
@@ -78,10 +70,24 @@ const initialize = async () => {
     }
 
     console.log('Edge gateway initialize out');
-
 };
 
-await initialize();
+const startWeb = () => {
+
+    console.log('Edge gateway startWeb in');
+
+    const app = express();
+
+    app.use(express.json({limit: '50mb'})); 
+    app.use(express.urlencoded({limit: '50mb', extended: true}));
+    routerHandler(app);
+
+    app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
+
+    console.log('Edge gateway startWeb out');
+};
+
+initialize.then(startWeb);
 
 setInterval(async () => {
     try {
@@ -89,12 +95,12 @@ setInterval(async () => {
         await iotEventHandler.handler();
 
     } catch (err) {
-        console.error('!!!!!!error happened at initialize method start!!!!!!');
+        console.error('!!!!!!error happened at iotEventHandler method start!!!!!!');
         console.error(err.name);
         console.error(err.message);
         console.error(err.stack);
         console.trace();
-        console.error('!!!!!!error happened at initialize method end!!!!!!');
+        console.error('!!!!!!error happened at iotEventHandler method end!!!!!!');
     } 
 }, 300000);
 
