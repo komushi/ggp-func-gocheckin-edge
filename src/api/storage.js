@@ -528,7 +528,6 @@ module.exports.getProperty = async (hostId) => {
   const result = await this.ddbDocClient.send(
     new QueryCommand({
       TableName: TBL_EQUIPMENT,
-      ProjectionExpression: attributes?.join(),
       KeyConditionExpression: '#hkey = :hkey',
       FilterExpression: '#category = :category',
       ExpressionAttributeNames : {
@@ -561,7 +560,6 @@ module.exports.updatProperty = async (hostId, property) => {
   const result = await this.ddbDocClient.send(
     new QueryCommand({
       TableName: TBL_EQUIPMENT,
-      ProjectionExpression: attributes?.join(),
       KeyConditionExpression: '#hkey = :hkey',
       FilterExpression: '#category = :category',
       ExpressionAttributeNames : {
