@@ -32,7 +32,8 @@ exports.handler = async function(event) {
 		console.log('iotEventHandler.handler after HOST_ID:' + process.env.HOST_ID);
 
 		await storage.updateHost(getShadowResult.state.desired.hostId).catch(err => {
-			console.error('updateHost error' + JSON.stringify(err));
+			console.error('updateHost error:' + err.message);
+			throw err;
 		});
 	}
 
@@ -42,7 +43,8 @@ exports.handler = async function(event) {
 		console.log('iotEventHandler.handler after PROPERTY_CODE:' + process.env.PROPERTY_CODE);
 		
 		await storage.updatProperty(getShadowResult.state.desired.hostId, getShadowResult.state.desired.property).catch(err => {
-			console.error('updatProperty error' + JSON.stringify(err));
+			console.error('iotEventHandler.handler updatProperty error:' + err.message);
+			throw err;
 		});
 	}
 
