@@ -714,7 +714,7 @@ module.exports.initializeDatabase = async () => {
     },
     GlobalSecondaryIndexes: [
       {
-        IndexName: idx_equipmentId,
+        IndexName: IDX_EQUIPMENT_ID,
         KeySchema: [
           {
             AttributeName: 'equipmentId',
@@ -734,7 +734,7 @@ module.exports.initializeDatabase = async () => {
         }
       },
       {
-        IndexName: idx_hostPropertyCode,
+        IndexName: IDX_HOST_PROPERTYCODE,
         KeySchema: [
           {
             AttributeName: 'hostPropertyCode',
