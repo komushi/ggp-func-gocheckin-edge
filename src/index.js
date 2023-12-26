@@ -87,7 +87,7 @@ const startWeb = () => {
     console.log('Edge gateway startWeb out');
 };
 
-initialize.then(startWeb);
+initialize().then(startWeb);
 
 setInterval(async () => {
     try {
