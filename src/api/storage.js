@@ -525,7 +525,7 @@ module.exports.getProperty = async (hostId) => {
 
   console.log('storage-api.getProperty in' + hostId);
 
-  const result = await this.ddbDocClient.send(
+  const result = await ddbDocClient.send(
     new QueryCommand({
       TableName: TBL_EQUIPMENT,
       KeyConditionExpression: '#hkey = :hkey',
@@ -557,7 +557,7 @@ module.exports.updatProperty = async (hostId, property) => {
 
   console.log('storage-api.updatProperty in' + JSON.stringify({hostId, property}));
 
-  const result = await this.ddbDocClient.send(
+  const result = await ddbDocClient.send(
     new QueryCommand({
       TableName: TBL_EQUIPMENT,
       KeyConditionExpression: '#hkey = :hkey',
