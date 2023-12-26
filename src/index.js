@@ -58,6 +58,17 @@ const initialize = () => {
 
     console.log('Edge gateway initialize in');
 
+    if (!process.env.HOST_ID) {
+        process.env.HOST_ID = await storage.getHostId();    
+    }
+
+    if (!process.env.PROPERTY_CODE) {
+        if (process.env.HOST_ID) {
+            const property = await storage.getProperty(process.env.HOST_ID);    
+            process.env.PROPERTY_CODE = property.propertyCode;                    
+        }
+    }
+
     const app = express();
 
     app.use(express.json({limit: '50mb'})); 
@@ -68,19 +79,7 @@ const initialize = () => {
 
     setInterval(async () => {
         try {
-            await storage.checkDynamoDB();
-
-            if (!process.env.HOST_ID) {
-                process.env.HOST_ID = await storage.getHostId();    
-            }
-
-            if (!process.env.PROPERTY_CODE) {
-                if (process.env.HOST_ID) {
-                    const property = await storage.getProperty(process.env.HOST_ID);    
-                    process.env.PROPERTY_CODE = property.propertyCode;                    
-                }
-            }
-                        
+            // await storage.checkDynamoDB();                        
             await iotEventHandler.handler();
 
         } catch (err) {

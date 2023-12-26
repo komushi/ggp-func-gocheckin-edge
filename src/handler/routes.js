@@ -15,6 +15,12 @@ router.post('/deviceReg', async (req, res) => {
   console.log('routes.deviceReg in HOST_ID:' + process.env.HOST_ID);
   console.log('routes.deviceReg in PROPERTY_CODE:' + process.env.PROPERTY_CODE);
 
+  if (!process.env.HOST_ID || !process.env.PROPERTY_CODE) {
+    return {
+      'code': 1
+    }
+  }
+
   //TODO validate listings by internalName
   let response = {
     'code': 0,
