@@ -515,7 +515,7 @@ module.exports.getHostId = async () => {
     hostId = scanResult.Items[0].hostId;    
   }
 
-  console.log('storage-api.updateHost out: hostId:' + hostId);
+  console.log('storage-api.getHostId out: hostId:' + hostId);
 
   return hostId;
 

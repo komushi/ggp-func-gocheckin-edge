@@ -91,7 +91,9 @@ initialize().then(startWeb);
 
 setInterval(async () => {
     try {
-        // await storage.checkDynamoDB();                        
+        // await storage.checkDynamoDB();
+        await initialize();
+
         await iotEventHandler.handler();
 
     } catch (err) {
