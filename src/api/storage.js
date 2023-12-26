@@ -541,7 +541,7 @@ module.exports.getProperty = async (hostId) => {
     })
   );
 
-  if (result.Items?.length > 0) {
+  if (result.Items.length > 0) {
     console.log('storage-api.getProperty out: property' + JSON.stringify(result.Items[0]));
 
     return result.Items[0];
