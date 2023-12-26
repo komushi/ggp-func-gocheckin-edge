@@ -706,6 +706,10 @@ module.exports.initializeDatabase = async () => {
       {
         AttributeName: 'hostId',
         AttributeType: 'S'
+      },
+      {
+        AttributeName: 'roomCode',
+        AttributeType: 'S'
       }
     ],
     ProvisionedThroughput: {
