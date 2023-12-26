@@ -42,8 +42,8 @@ router.post('/deviceReg', async (req, res) => {
     return {
       hostId: process.env.HOST_ID,
       propertyCode: process.env.PROPERTY_CODE,
-      hostPropertyCode: `${process.env.HOST_ID}-${process.env.PROPERTY_CODE}`;
-      category: 'SCANNER';
+      hostPropertyCode: `${process.env.HOST_ID}-${process.env.PROPERTY_CODE}`,
+      category: 'SCANNER',
       equipmentId: req.body.terminalKey,
       equipmentName: req.body.terminalName,
       coreName: process.env.AWS_IOT_THING_NAME,
