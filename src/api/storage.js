@@ -679,7 +679,7 @@ module.exports.initializeDatabase = async () => {
   });
 
   const equipmentCmd = new CreateTableCommand({
-    TableName: tbl_equipment,
+    TableName: TBL_EQUIPMENT,
     KeySchema: [
       {
         AttributeName: 'hostId',
