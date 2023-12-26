@@ -69,8 +69,6 @@ const initialize = () => {
     setInterval(async () => {
         try {
             await storage.checkDynamoDB();
-            
-            await iotEventHandler.handler();
 
             if (!process.env.HOST_ID) {
                 process.env.HOST_ID = await storage.getHostId();    
@@ -82,6 +80,9 @@ const initialize = () => {
                     process.env.PROPERTY_CODE = property.propertyCode;                    
                 }
             }
+                        
+            await iotEventHandler.handler();
+
         } catch (err) {
             console.error('!!!!!!error happened at initialize method start!!!!!!');
             console.error(err.name);
