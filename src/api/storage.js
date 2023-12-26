@@ -1,14 +1,6 @@
 const TBL_RESERVATION = process.env.TBL_RESERVATION;
 const TBL_MEMBER = process.env.TBL_MEMBER;
-// const TBL_SCANNER = process.env.TBL_SCANNER;
-// const IDX_LISTINGID_ROOMCODE = process.env.IDX_LISTINGID_ROOMCODE;
-// const IDX_LISTINGID_TERMINALKEY = process.env.IDX_LISTINGID_TERMINALKEY;
-// const IDX_TERMINALKEY = process.env.IDX_TERMINALKEY;
-const TBL_RECORD = process.env.TBL_RECORD;
-// const TBL_LISTING = process.env.TBL_LISTING;
-// const IDX_INTERNALNAME = process.env.IDX_INTERNALNAME;
 const TBL_HOST = process.env.TBL_HOST;
-
 
 const TBL_EQUIPMENT = process.env.TBL_EQUIPMENT;
 const IDX_HOST_PROPERTYCODE = process.env.IDX_HOST_PROPERTYCODE;
@@ -618,101 +610,6 @@ module.exports.updatProperty = async (hostId, property) => {
   return;
 };
 
-/*
-module.exports.deleteListing = async ({hostId, listingId}) => {
-
-  console.log('storage-api.deleteListing in:' + JSON.stringify({hostId, listingId}));
-
-
-  const param = {
-    TableName: TBL_LISTING,
-    Key: {
-      hostId: hostId,
-      listingId: listingId
-    }
-  };
-
-  const command = new DeleteCommand(param);
-
-  const result = await ddbDocClient.send(command);
-
-  console.log('storage-api.deleteListing out: result:' + JSON.stringify(result));
-
-  return;
-
-};
-
-module.exports.updateListing = async ({hostId, listingId, internalName}) => {
-
-  console.log('storage-api.updateListing in:' + JSON.stringify({hostId, listingId, internalName}));
-
-
-  const params = [{
-    Put: {
-      TableName: TBL_LISTING,
-      Item: {hostId, listingId, internalName}
-    }
-  }];
-
-  const command = new TransactWriteCommand({
-    TransactItems: params
-  });
-
-  const result = await ddbDocClient.send(command);  
-
-  console.log('storage-api.updateListing out: result:' + JSON.stringify(result));
-
-  return;
-
-};
-
-module.exports.getListings = async () => {
-
-  console.log('storage-api.getListings in');
-
-  const scanParam = {
-    TableName : TBL_LISTING,
-    PageSize : 100
-  };
-
-  const scanCmd = new ScanCommand(scanParam);
-
-  const scanResult = await ddbDocClient.send(scanCmd);
-
-  console.log('storage-api.getListings out:' + JSON.stringify(scanResult.Items));
-
-  return scanResult.Items
-
-};
-
-module.exports.getListing = async (internalName) => {
-
-  console.log('getListing in: internalName:' + internalName);
-
-  const param = {
-    TableName: TBL_LISTING,
-    IndexName: IDX_INTERNALNAME,
-    KeyConditionExpression: 'internalName = :internalName',
-    ExpressionAttributeValues: {
-      ':internalName': internalName
-    }    
-  };
-
-  const command = new QueryCommand(param);
-
-  const data = await ddbDocClient.send(command);
-
-  if (data.Items.length == 0) {
-    console.log('getListing out');
-
-    return;
-  } else {
-    console.log('getListing out:' + JSON.stringify(data.Items[0]));
-
-    return data.Items[0];
-  }
-};
-*/
 
 module.exports.initializeDatabase = async () => {
 
@@ -722,10 +619,6 @@ module.exports.initializeDatabase = async () => {
     TableName: TBL_HOST
   });
 
-  // const listingDeleteCmd = new DeleteTableCommand({
-  //   TableName: TBL_LISTING
-  // });
-
   const reservationDeleteCmd = new DeleteTableCommand({
     TableName: TBL_RESERVATION
   });
@@ -734,13 +627,11 @@ module.exports.initializeDatabase = async () => {
     TableName: TBL_MEMBER
   });
 
-  // const scannerDeleteCmd = new DeleteTableCommand({
-  //   TableName: TBL_SCANNER
-  // });
-
-  const recordDeleteCmd = new DeleteTableCommand({
-    TableName: TBL_RECORD
+  const equipmentDeleteCmd = new DeleteTableCommand({
+    TableName: TBL_EQUIPMENT
   });
+
+
 
   const hostCmd = new CreateTableCommand({
     TableName: TBL_HOST,
@@ -755,39 +646,7 @@ module.exports.initializeDatabase = async () => {
       WriteCapacityUnits: 5
     }
   });
-/*
-  const listingCmd = new CreateTableCommand({
-    TableName: TBL_LISTING,
-    KeySchema: [
-      { AttributeName: 'hostId', KeyType: 'HASH' },
-      { AttributeName: 'listingId', KeyType: 'RANGE' }
-    ],
-    AttributeDefinitions: [
-      { AttributeName: 'hostId', AttributeType: 'S' },
-      { AttributeName: 'listingId', AttributeType: 'S' },
-      { AttributeName: 'internalName', AttributeType: 'S' }
-    ],
-    ProvisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    },
-    GlobalSecondaryIndexes: [
-      {
-        IndexName: IDX_INTERNALNAME,
-        KeySchema: [
-          { AttributeName: 'internalName', KeyType: 'HASH'}
-        ],
-        Projection: {
-          ProjectionType: 'ALL'
-        },
-        ProvisionedThroughput: {
-          ReadCapacityUnits: 5,
-          WriteCapacityUnits: 5
-        }
-      }
-    ]
-  });
-*/
+
   const reservationCmd = new CreateTableCommand({
     TableName: TBL_RESERVATION,
     KeySchema: [
@@ -821,17 +680,35 @@ module.exports.initializeDatabase = async () => {
     }
   });
 
-/*
-  const scannerCmd = new CreateTableCommand({
-    TableName: TBL_SCANNER,
+  const equipmentCmd = new CreateTableCommand({
+    TableName: tbl_equipment,
     KeySchema: [
-      { AttributeName: 'uuid', KeyType: 'HASH' }
+      {
+        AttributeName: 'hostId',
+        KeyType: 'HASH'
+      },
+      {
+        AttributeName: 'uuid',
+        KeyType: 'RANGE'
+      }
     ],
     AttributeDefinitions: [
-      { AttributeName: 'uuid', AttributeType: 'S' },
-      { AttributeName: 'listingId', AttributeType: 'S' },
-      { AttributeName: 'terminalKey', AttributeType: 'S' },
-      { AttributeName: 'roomCode', AttributeType: 'S' }
+      {
+        AttributeName: 'uuid',
+        AttributeType: 'S'
+      },
+      {
+        AttributeName: 'hostPropertyCode',
+        AttributeType: 'S'
+      },
+      {
+        AttributeName: 'equipmentId',
+        AttributeType: 'S'
+      },
+      {
+        AttributeName: 'hostId',
+        AttributeType: 'S'
+      }
     ],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
@@ -839,9 +716,16 @@ module.exports.initializeDatabase = async () => {
     },
     GlobalSecondaryIndexes: [
       {
-        IndexName: IDX_TERMINALKEY,
+        IndexName: idx_equipmentId,
         KeySchema: [
-          { AttributeName: 'terminalKey', KeyType: 'HASH'}
+          {
+            AttributeName: 'equipmentId',
+            KeyType: 'HASH'
+          },
+          {
+            AttributeName: 'roomCode',
+            KeyType: 'RANGE'
+          }
         ],
         Projection: {
           ProjectionType: 'ALL'
@@ -852,24 +736,16 @@ module.exports.initializeDatabase = async () => {
         }
       },
       {
-        IndexName: IDX_LISTINGID_TERMINALKEY,
+        IndexName: idx_hostPropertyCode,
         KeySchema: [
-          { AttributeName: 'listingId', KeyType: 'HASH'},
-          { AttributeName: 'terminalKey', KeyType: 'RANGE'}
-        ],
-        Projection: {
-          ProjectionType: 'ALL'
-        },
-        ProvisionedThroughput: {
-          ReadCapacityUnits: 5,
-          WriteCapacityUnits: 5
-        }
-      },
-      {
-        IndexName: IDX_LISTINGID_ROOMCODE,
-        KeySchema: [
-          { AttributeName: 'listingId', KeyType: 'HASH'},
-          { AttributeName: 'roomCode', KeyType: 'RANGE'}
+          {
+            AttributeName: 'hostPropertyCode',
+            KeyType: 'HASH'
+          },
+          {
+            AttributeName: 'uuid',
+            KeyType: 'RANGE'
+          }
         ],
         Projection: {
           ProjectionType: 'ALL'
@@ -881,41 +757,21 @@ module.exports.initializeDatabase = async () => {
       }
     ]
   });
-*/
-  const recordCmd = new CreateTableCommand({
-    TableName: TBL_RECORD,
-    KeySchema: [
-      { AttributeName: 'terminalKey', KeyType: 'HASH' },
-      { AttributeName: 'eventTimestamp', KeyType: 'RANGE' }
-    ],
-    AttributeDefinitions: [
-      { AttributeName: 'terminalKey', AttributeType: 'S' },
-      { AttributeName: 'eventTimestamp', AttributeType: 'N' }
-    ],
-    ProvisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
-  });
 
   const deleteResults = await Promise.allSettled([
     ddbDocClient.send(hostDeleteCmd),
-    // ddbDocClient.send(listingDeleteCmd),
     ddbDocClient.send(reservationDeleteCmd),
     ddbDocClient.send(memberDeleteCmd),
-    // ddbDocClient.send(scannerDeleteCmd),
-    ddbDocClient.send(recordDeleteCmd)
+    ddbDocClient.send(equipmentDeleteCmd),
   ]);
 
   console.log('initializeDatabase deleteResults:' + JSON.stringify(deleteResults));
 
   const createResults = await Promise.allSettled([
     ddbDocClient.send(hostCmd),
-    // ddbDocClient.send(listingCmd),
     ddbDocClient.send(reservationCmd),
     ddbDocClient.send(memberCmd),
-    // ddbDocClient.send(scannerCmd),
-    ddbDocClient.send(recordCmd)
+    ddbDocClient.send(equipmentCmd)
   ]);
 
   console.log('initializeDatabase createResults:' + JSON.stringify(createResults));
@@ -935,11 +791,6 @@ module.exports.checkDynamoDB = async () => {
     Limit: 1
   });
 
-  // const listingCmd = new ListTablesCommand({
-  //   ExclusiveStartTableName: TBL_LISTING,
-  //   Limit: 1
-  // });
-
   const reservationCmd = new ListTablesCommand({
     ExclusiveStartTableName: TBL_RESERVATION,
     Limit: 1
@@ -950,23 +801,16 @@ module.exports.checkDynamoDB = async () => {
     Limit: 1
   });
 
-  // const scannerCmd = new ListTablesCommand({
-  //   ExclusiveStartTableName: TBL_SCANNER,
-  //   Limit: 1
-  // });
-
-  const recordCmd = new ListTablesCommand({
-    ExclusiveStartTableName: TBL_RECORD,
+  const equipmentCmd = new ListTablesCommand({
+    ExclusiveStartTableName: TBL_EQUIPMENT,
     Limit: 1
   });
 
   const results = await Promise.all([
     ddbDocClient.send(hostCmd),
-    ddbDocClient.send(listingCmd),
     ddbDocClient.send(reservationCmd),
     ddbDocClient.send(memberCmd),
-    ddbDocClient.send(scannerCmd),
-    ddbDocClient.send(recordCmd)
+    ddbDocClient.send(equipmentCmd)
   ]).catch(err => {
     console.error(`storage-api.checkDynamoDB err: ${err.message}`);
     throw new Error('The local database of the IoT Edge Gateway is unavailable or not setup correctly');
