@@ -54,9 +54,17 @@ exports.handler = async function(event, context) {
     return promise;
 };
 
-const initialize = () => {
+const initialize = async () => {
 
     console.log('Edge gateway initialize in');
+
+    const app = express();
+
+    app.use(express.json({limit: '50mb'})); 
+    app.use(express.urlencoded({limit: '50mb', extended: true}));
+    routerHandler(app);
+
+    app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
 
     if (!process.env.HOST_ID) {
         process.env.HOST_ID = await storage.getHostId();    
@@ -69,33 +77,24 @@ const initialize = () => {
         }
     }
 
-    const app = express();
-
-    app.use(express.json({limit: '50mb'})); 
-    app.use(express.urlencoded({limit: '50mb', extended: true}));
-    routerHandler(app);
-
-    app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
-
-    setInterval(async () => {
-        try {
-            // await storage.checkDynamoDB();                        
-            await iotEventHandler.handler();
-
-        } catch (err) {
-            console.error('!!!!!!error happened at initialize method start!!!!!!');
-            console.error(err.name);
-            console.error(err.message);
-            console.error(err.stack);
-            console.trace();
-            console.error('!!!!!!error happened at initialize method end!!!!!!');
-        } 
-    }, 300000);
-
     console.log('Edge gateway initialize out');
 
 };
 
-initialize();
+await initialize();
 
+setInterval(async () => {
+    try {
+        // await storage.checkDynamoDB();                        
+        await iotEventHandler.handler();
+
+    } catch (err) {
+        console.error('!!!!!!error happened at initialize method start!!!!!!');
+        console.error(err.name);
+        console.error(err.message);
+        console.error(err.stack);
+        console.trace();
+        console.error('!!!!!!error happened at initialize method end!!!!!!');
+    } 
+}, 300000);
 
