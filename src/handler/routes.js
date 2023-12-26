@@ -13,6 +13,7 @@ router.post('/deviceReg', async (req, res) => {
 
   console.log('routes.deviceReg in: req.body:' + JSON.stringify(req.body));
   console.log('routes.deviceReg in HOST_ID:' + process.env.HOST_ID);
+  console.log('routes.deviceReg in PROPERTY_CODE:' + process.env.PROPERTY_CODE);
 
   //TODO validate listings by internalName
   let response = {
@@ -34,7 +35,7 @@ router.post('/deviceReg', async (req, res) => {
   const params = roomCodes.map(roomCode => {
     return {
       hostId: process.env.HOST_ID,
-      propertyCode: process.env.propertyCode,
+      propertyCode: process.env.PROPERTY_CODE,
       equipmentId: req.body.terminalKey,
       equipmentName: req.body.terminalName,
       coreName: process.env.AWS_IOT_THING_NAME,
