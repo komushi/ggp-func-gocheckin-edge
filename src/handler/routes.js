@@ -73,6 +73,13 @@ router.post('/deviceReg', async (req, res) => {
 
 router.post('/uploadMipsGateRecord', async (req, res) => {
 
+  if (!process.env.HOST_ID || !process.env.PROPERTY_CODE) {
+    console.log('routes.uploadMipsGateRecord PROPERTY_CODE:' + process.env.PROPERTY_CODE);
+    console.log('routes.uploadMipsGateRecord HOST_ID:' + process.env.HOST_ID);
+
+    return;
+  }
+
   const payload = req.body
 
   payload.eventTimestamp = Date.now();
@@ -117,8 +124,6 @@ router.post('/uploadMipsGateRecord', async (req, res) => {
 
     });
   }
-
-  console.log('routes.uploadMipsGateRecord in HOST_ID:' + process.env.HOST_ID);
 
   const iotPayload = {
     reservationCode: payload.group,

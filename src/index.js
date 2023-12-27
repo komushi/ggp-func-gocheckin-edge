@@ -69,6 +69,10 @@ const initialize = async () => {
         }
     }
 
+    if (!process.env.EXPRESS_RUNNING) {
+        startWeb();
+    }
+
     console.log('Edge gateway initialize out');
 };
 
@@ -82,16 +86,27 @@ const startWeb = () => {
     app.use(express.urlencoded({limit: '50mb', extended: true}));
     routerHandler(app);
 
-    app.listen(CORE_PORT, () => console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`));
+    app.listen(CORE_PORT, () => {
+        console.log(`Edge gateway webapp listening on port ${CORE_PORT}!`);
+        process.env.EXPRESS_RUNNING = true;
+    });
 
     console.log('Edge gateway startWeb out');
 };
 
-initialize()
-    .then(startWeb)
-    .catch(err => {
+setTimeout(async () => {
+    try {
+        // await storage.checkDynamoDB();
+        await initialize();
+    } catch (err) {
+        console.error('!!!!!!error happened at iotEventHandler method start!!!!!!');
+        console.error(err.name);
         console.error(err.message);
-    });
+        console.error(err.stack);
+        console.trace();
+        console.error('!!!!!!error happened at iotEventHandler method end!!!!!!');
+    } 
+}, 10000);
 
 setInterval(async () => {
     try {
@@ -108,5 +123,5 @@ setInterval(async () => {
         console.trace();
         console.error('!!!!!!error happened at iotEventHandler method end!!!!!!');
     } 
-}, 10000);
+}, 300000);
 

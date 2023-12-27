@@ -515,6 +515,10 @@ module.exports.getHostId = async () => {
     hostId = scanResult.Items[0].hostId;    
   }
 
+  if (!hostId) {
+    throw new Error(`getProperty empty`);
+  }
+
   console.log('storage-api.getHostId out: hostId:' + hostId);
 
   return hostId;
@@ -547,9 +551,7 @@ module.exports.getProperty = async (hostId) => {
     return result.Items[0];
 
   } else {
-    console.log(`hosts.dao getProperties out: empty`);
-
-    return;
+    throw new Error(`getProperty empty`);
   }
 };
 
