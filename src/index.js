@@ -108,5 +108,5 @@ setInterval(async () => {
         console.trace();
         console.error('!!!!!!error happened at iotEventHandler method end!!!!!!');
     } 
-}, 300000);
+}, 10000);
 
