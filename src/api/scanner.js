@@ -53,6 +53,7 @@ module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
   console.log('scanner.findUsers scannerAddresses before:' + JSON.stringify(scannerAddresses));
 
   scannerAddresses = scannerAddresses.flatMap(x => x);
+  scannerAddresses = [...new Set(localIps)]
 
   console.log('scanner.findUsers scannerAddresses:' + JSON.stringify(scannerAddresses));
 
