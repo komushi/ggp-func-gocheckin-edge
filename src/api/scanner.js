@@ -40,6 +40,75 @@ module.exports.getConfig = async (scannerAddress) => {
 module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
   console.log('scanner.findUsers in: ' + JSON.stringify({listingId, userName, userCode, group}));
 
+  const getReservationResult = await storage.getReservation({reservationCode: group, listingId});
+
+  let scannerAddresses = [];
+
+  if (getReservationResult && getReservationResult.members) {
+    scannerAddresses = await Promise.all(getReservationResult.members.map(async (member) => {
+      return await storage.getScanners(member.memberKeyItem.roomCode);
+    }));
+  }
+
+  console.log('scanner.findUsers scannerAddresses before:' + JSON.stringify(scannerAddresses));
+
+  scannerAddresses = scannerAddresses.flatMap(x => x);
+
+  console.log('scanner.findUsers scannerAddresses:' + JSON.stringify(scannerAddresses));
+
+  if (scannerAddresses.length == 0) {
+    console.log('scanner.findUsers out: results: []');
+    return [];
+  }
+
+  const bodyFormData = new FormData();
+  if (userName) {
+    bodyFormData.append('name', userName);
+  } else if (userCode) {
+    bodyFormData.append('name', userCode);  
+  } else if (group) {
+    bodyFormData.append('name', group);  
+  } else {
+    throw new Error('scanner.findUsers - Need userName, userCode or group to find a user');
+  }
+  
+  const results = await Promise.all(scannerAddresses.map(async (scannerAddress) => {
+    
+    // console.log('findUsers url:' + `http://${scannerAddress}:${SCANNER_PORT}/${USER_FIND_API}`);
+    // console.log('findUsers bodyFormData:' + JSON.stringify(bodyFormData));
+
+    const response = await got.post(`http://${scannerAddress}:${SCANNER_PORT}/${USER_FIND_API}`, {
+      body: bodyFormData
+    });
+
+    console.log(response);
+
+    let users = [];
+
+    if (response) {
+      if (response.body) {
+        if ((JSON.parse(response.body)).data) {
+          users = (JSON.parse(response.body)).data;
+        }
+      }
+    }
+
+    return {
+      scannerAddress: scannerAddress,
+      users: users
+    };
+
+  }));
+
+  console.log('scanner.findUsers out: results:' + JSON.stringify(results));
+
+  return results;
+};
+
+/*
+module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
+  console.log('scanner.findUsers in: ' + JSON.stringify({listingId, userName, userCode, group}));
+
   let scannerAddresses = [];
 
   if (listingId) {
@@ -104,6 +173,7 @@ module.exports.findUsers = async ({listingId, userName, userCode, group}) => {
 
   return results;
 };
+*/
 
 module.exports.deleteUsers = async ({scannerAddress, deleteUsersParam}) => {
   console.log('deleteUsers in: scannerAddress:' + scannerAddress);
@@ -142,10 +212,7 @@ module.exports.deleteUser = async ({listingId, userParam}) => {
   console.log('deleteUser in: listingId:' + listingId);
   console.log('deleteUser in: userParam:' + JSON.stringify(userParam));
 
-  const scannerAddresses = await storage.getScanners({
-    listingId: listingId, 
-    roomCode: userParam.roomCode
-  });
+  const scannerAddresses = await storage.getScanners(userParam.memberKeyItem.roomCode);
 
   // console.log('deleteUser scannerAddresses:' + JSON.stringify(scannerAddresses));
   if (scannerAddresses.length == 0) {
@@ -190,10 +257,7 @@ module.exports.deleteUser = async ({listingId, userParam}) => {
 module.exports.addUser = async ({reservation, userParam}) => {
   console.log('scanner.addUser in:' + JSON.stringify({reservation, userParam}));
 
-  const scannerAddresses = await storage.getScanners({
-    listingId: reservation.listingId, 
-    roomCode: userParam.roomCode
-  });
+  const scannerAddresses = await storage.getScanners(userParam.memberKeyItem.roomCode);
 
   if (scannerAddresses.length == 0) {
     throw new Error('No Scanner Addresses found!!');

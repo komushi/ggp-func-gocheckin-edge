@@ -30,12 +30,6 @@ exports.handler = async function(event, context) {
             console.log('shadow/update/delta event.state:' + JSON.stringify(event.state));
 
             await iotEventHandler.handler(event);
-
-        } else if (context.clientContext.Custom.subject.indexOf('find_user') > -1 ) {
-            console.log('find_user event: ' + JSON.stringify(event));
-
-            await scanner.findUsers(event);
-
         }
     } catch (err) {
         console.error('!!!!!!error happened at handler start!!!!!!');

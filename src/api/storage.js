@@ -322,66 +322,56 @@ const getDelScannerParams = async (equipmentId) => {
   return params;
 };
 
-module.exports.getScanners = async ({listingId, roomCode}) => {
+module.exports.getScanners = async (roomCode) => {
 
-  console.log('storage-api.getScanners in:' + JSON.stringify({listingId, roomCode}));
+  console.log('storage-api.getScanners in:' + roomCode);
 
   let param;
 
-  if (listingId) {
-    if (roomCode) {
-      param = {
-        TableName: TBL_SCANNER,
-        IndexName: IDX_LISTINGID_ROOMCODE,
-        KeyConditionExpression: '#hkey = :hkey AND #rkey = :rkey',
-        ExpressionAttributeNames : {
-            '#hkey' : 'listingId',
-            '#rkey' : 'roomCode'
-        },
-        ExpressionAttributeValues: {
-          ':hkey': listingId,
-          ':rkey': roomCode
-        }    
-      };
-    } else {
-      param = {
-        TableName: TBL_SCANNER,
-        IndexName: IDX_LISTINGID_TERMINALKEY,
-        KeyConditionExpression: '#hkey = :hkey',
-        ExpressionAttributeNames : {
-            '#hkey' : 'listingId'
-        },
-        ExpressionAttributeValues: {
-          ':hkey': listingId
-        }     
-      };
-    }
-  } else {
-    throw new Error('getScanners: listingId is required!!')
-  }
 
-  const command = new QueryCommand(param);
+  if (roomCode) {
+    param = {
+      TableName: TBL_EQUIPMENT,
+      IndexName: IDX_HOST_PROPERTYCODE,
+      KeyConditionExpression: '#hkey = :hkey',
+      FilterExpression: '#roomCode = :roomCode AND #category = :category',
+      ExpressionAttributeNames : {
+          '#hkey' : 'hostPropertyCode',
+          '#roomCode' : 'roomCode',
+          '#category' : 'category'
+      },
+      ExpressionAttributeValues: {
+        ':hkey': `${process.env.HOST_ID}-${process.env.PROPERTY_CODE}`,
+        ':roomCode': roomCode,
+        ':category': 'SCANNER'
+      }    
+    };
+  } else {
+    console.log('storage-api.getScanners out empty');
+
+    return [];
+  }
 
   let result;
   
   try {
+    const command = new QueryCommand(param);
+
     result = await ddbDocClient.send(command);
   } catch (err) {
-    console.error(`getScanners with listingId: ${listingId} and roomCode: ${roomCode} has err.name: ${err.name}`);
-    console.error(`getScanners with listingId: ${listingId} and roomCode: ${roomCode} has err.message: ${err.message}`);
+    console.error(`getScanners with roomCode: ${roomCode} has err.name: ${err.name}`);
+    console.error(`getScanners with roomCode: ${roomCode} has err.message: ${err.message}`);
     console.error(err.stack);
     console.trace();
 
     return [];
   }
-  
-
 
   console.log('storage-api.getScanners result:' + JSON.stringify(result));
 
   const localIps = result.Items.map(item => item.localIp);
 
-  console.log('storage-api.getScanners localIps:' + JSON.stringify(localIps));
+  console.log('storage-api.getScanners out localIps:' + JSON.stringify(localIps));
 
   return [...new Set(localIps)];
 
