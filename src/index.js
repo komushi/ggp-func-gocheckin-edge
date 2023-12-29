@@ -102,7 +102,7 @@ setTimeout(async () => {
 
 setInterval(async () => {
     try {
-        await initialize();
+        await initialize().catch(error => {});
 
         await iotEventHandler.handler();
 
