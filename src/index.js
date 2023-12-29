@@ -20,8 +20,6 @@ exports.handler = async function(event, context) {
 
     try {
 
-        await storage.checkDynamoDB();
-
         if (context.clientContext.Custom.subject.indexOf('init_db') > -1) {
             
             await storage.initializeDatabase();
@@ -51,6 +49,7 @@ exports.handler = async function(event, context) {
 const initialize = async () => {
 
     console.log('Edge gateway initialize in');
+    await storage.checkDynamoDB();
 
     if (!process.env.HOST_ID) {
         process.env.HOST_ID = await storage.getHostId();    
@@ -90,7 +89,6 @@ const startWeb = () => {
 
 setTimeout(async () => {
     try {
-        // await storage.checkDynamoDB();
         await initialize();
     } catch (err) {
         console.error('!!!!!!error happened at iotEventHandler method start!!!!!!');
@@ -104,7 +102,6 @@ setTimeout(async () => {
 
 setInterval(async () => {
     try {
-        // await storage.checkDynamoDB();
         await initialize();
 
         await iotEventHandler.handler();

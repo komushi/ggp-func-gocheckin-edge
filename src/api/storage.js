@@ -506,7 +506,7 @@ module.exports.getHostId = async () => {
   }
 
   if (!hostId) {
-    throw new Error(`getProperty empty`);
+    throw new Error(`getHostId empty`);
   }
 
   console.log('storage-api.getHostId out: hostId:' + hostId);
@@ -800,17 +800,14 @@ module.exports.checkDynamoDB = async () => {
     Limit: 1
   });
 
-  const results = await Promise.all([
+  const results = await Promise.allSettled([
     ddbDocClient.send(hostCmd),
     ddbDocClient.send(reservationCmd),
     ddbDocClient.send(memberCmd),
     ddbDocClient.send(equipmentCmd)
-  ]).catch(err => {
-    console.error(`storage-api.checkDynamoDB err: ${err.message}`);
-    throw new Error('The local database of the IoT Edge Gateway is unavailable or not setup correctly');
-  });
+  ]);
 
-  console.log('storage-api.checkDynamoDB out');
+  console.log('storage-api.checkDynamoDB out:' + JSON.stringify(results));
 
-  return;
+  return results;
 };
