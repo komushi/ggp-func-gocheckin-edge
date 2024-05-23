@@ -51,8 +51,10 @@ const initialize = async () => {
     console.log('Edge gateway initialize in');
     await storage.checkDynamoDB();
 
-    if (!process.env.HOST_ID) {
-        process.env.HOST_ID = await storage.getHostId();    
+    if (!process.env.HOST_ID || !process.env.STAGE) {
+        const result = await storage.getHost();
+        process.env.HOST_ID = result.hostId;
+        process.env.STAGE = result.stage;
     }
 
     if (!process.env.PROPERTY_CODE) {

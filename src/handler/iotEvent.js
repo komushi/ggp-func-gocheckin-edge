@@ -26,12 +26,15 @@ exports.handler = async function(event) {
 
     console.log('iotEventHandler.handler current event:' + JSON.stringify(event));
 
-	if (getShadowResult.state.desired.hostId) {
+	if (getShadowResult.state.desired.hostId && getShadowResult.state.desired.stage) {
 		console.log('iotEventHandler.handler before HOST_ID:' + process.env.HOST_ID);
+		console.log('iotEventHandler.handler before STAGE:' + process.env.STAGE);
 		process.env.HOST_ID = getShadowResult.state.desired.hostId;
+		process.env.STAGE = getShadowResult.state.desired.stage;
 		console.log('iotEventHandler.handler after HOST_ID:' + process.env.HOST_ID);
+		console.log('iotEventHandler.handler after STAGE:' + process.env.STAGE);
 
-		await storage.updateHost(getShadowResult.state.desired.hostId).catch(err => {
+		await storage.updateHost(getShadowResult.state.desired.hostId, getShadowResult.state.desired.stage).catch(err => {
 			console.error('updateHost error:' + err.message);
 			throw err;
 		});
@@ -75,7 +78,7 @@ exports.handler = async function(event) {
 	                });
 
 			        await iot.publish({
-			            topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/reservation_reset`,
+			            topic: `gocheckin/${process.env.STAGE}/${process.env.AWS_IOT_THING_NAME}/reservation_reset`,
 			            payload: JSON.stringify({
 			                listingId: listingId,
 			                reservationCode: reservationCode,
@@ -106,7 +109,8 @@ exports.handler = async function(event) {
 	                });
 
 			        await iot.publish({
-			            topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
+			            topic: `gocheckin/${process.env.STAGE}/
+			            {process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
 			            payload: JSON.stringify({
 			                listingId: listingId,
 			                reservationCode: reservationCode,
@@ -123,7 +127,7 @@ exports.handler = async function(event) {
 
 	            } else {
 			        await iot.publish({
-			            topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
+			            topic: `gocheckin/${process.env.STAGE}/${process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
 			            payload: JSON.stringify({
 			                listingId: listingId,
 			                reservationCode: reservationCode,

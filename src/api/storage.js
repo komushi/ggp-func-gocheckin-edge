@@ -453,9 +453,9 @@ module.exports.getMember = async ({reservationCode, memberNo}) => {
 
 };
 
-module.exports.updateHost = async (hostId) => {
+module.exports.updateHost = async ({hostId, stage}) => {
 
-  console.log('storage-api.updateHost in:' + hostId);
+  console.log('storage-api.updateHost in:' + JSON.stringify({hostId, stage}));
 
   if (!hostId) {
     console.log('storage-api.updateHost out');
@@ -466,7 +466,7 @@ module.exports.updateHost = async (hostId) => {
   const params = [{
     Put: {
       TableName: TBL_HOST,
-      Item: { hostId },
+      Item: { hostId, stage },
       // ExpressionAttributeNames : {
       //     '#pk' : 'hostId'
       // },
@@ -486,9 +486,9 @@ module.exports.updateHost = async (hostId) => {
 
 };
 
-module.exports.getHostId = async () => {
+module.exports.getHost = async () => {
 
-  console.log('storage-api.getHostId in');
+  console.log('storage-api.getHost in');
 
 
   const scanParam = {
@@ -500,18 +500,18 @@ module.exports.getHostId = async () => {
 
   const scanResult = await ddbDocClient.send(scanCmd);
 
-  let hostId;
-  if (scanResult.Items) {
-    hostId = scanResult.Items[0].hostId;    
+  let result;
+  if (scanResult.Items && scanResult.Items.length > 0) {
+    result = scanResult.Items[0];    
   }
 
-  if (!hostId) {
-    throw new Error(`getHostId empty`);
+  if (!result) {
+    throw new Error(`getHost empty`);
   }
 
-  console.log('storage-api.getHostId out: hostId:' + hostId);
+  console.log('storage-api.getHost out: result:' + JSON.stringify(result));
 
-  return hostId;
+  return result;
 
 };
 

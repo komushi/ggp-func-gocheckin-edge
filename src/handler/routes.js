@@ -59,7 +59,7 @@ router.post('/deviceReg', async (req, res) => {
   const scannerResults = await storage.updateScanners(params, req.body.terminalKey);
 
   const publishResults = await iot.publish({
-    topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/scanner_detected`,
+    topic: `gocheckin/${process.env.STAGE}/${process.env.AWS_IOT_THING_NAME}/scanner_detected`,
     payload: JSON.stringify({
       items: scannerResults,
       equipmentId: req.body.terminalKey
@@ -137,7 +137,7 @@ router.post('/uploadMipsGateRecord', async (req, res) => {
 
 
   const publishResults = await iot.publish({
-    topic: `gocheckin/${process.env.AWS_IOT_THING_NAME}/scan_record`,
+    topic: `gocheckin/${process.env.STAGE}/${process.env.AWS_IOT_THING_NAME}/scan_record`,
     payload: JSON.stringify(iotPayload)
   });
 
