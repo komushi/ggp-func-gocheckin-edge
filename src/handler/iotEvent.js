@@ -109,8 +109,7 @@ exports.handler = async function(event) {
 	                });
 
 			        await iot.publish({
-			            topic: `gocheckin/${process.env.STAGE}/
-			            {process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
+			            topic: `gocheckin/${process.env.STAGE}/${process.env.AWS_IOT_THING_NAME}/reservation_deployed`,
 			            payload: JSON.stringify({
 			                listingId: listingId,
 			                reservationCode: reservationCode,
