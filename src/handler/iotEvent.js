@@ -34,7 +34,10 @@ exports.handler = async function(event) {
 		console.log('iotEventHandler.handler after HOST_ID:' + process.env.HOST_ID);
 		console.log('iotEventHandler.handler after STAGE:' + process.env.STAGE);
 
-		await storage.updateHost(getShadowResult.state.desired.hostId, getShadowResult.state.desired.stage).catch(err => {
+		await storage.updateHost({
+			hostId: getShadowResult.state.desired.hostId,
+			stage: getShadowResult.state.desired.stage
+		}).catch(err => {
 			console.error('updateHost error:' + err.message);
 			throw err;
 		});
